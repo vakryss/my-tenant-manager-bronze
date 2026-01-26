@@ -1,67 +1,98 @@
 import { supabase } from "./supabase.js";
 
+/* =========================
+   ELEMENT REFERENCES
+========================= */
 const signupBtn = document.getElementById("signupBtn");
 const message = document.getElementById("message");
 
-signupBtn.addEventListener("click", async () => {
-  message.textContent = "Processing...";
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const countryInput = document.getElementById("country");
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  const country = document.getElementById("country").value.trim();
-  const termsAccepted = document.getElementById("terms").checked;
-  const privacyAccepted = document.getElementById("privacy").checked;
+const termsCheckbox = document.getElementById("terms");
+const privacyCheckbox = document.getElementById("privacy");
 
-  if (!email || !password || !country) {
-    message.textContent = "All fields are required.";
-    return;
-  }
+const togglePassword = document.getElementById("togglePassword");
 
-  if (!termsAccepted || !privacyAccepted) {
-    message.textContent = "You must accept Terms and Privacy.";
-    return;
-  }
+/* =========================
+   SHOW / HIDE PASSWORD
+========================= */
+if (togglePassword && passwordInput) {
+  togglePassword.addEventListener("change", () => {
+    passwordInput.type = togglePassword.checked ? "text" : "password";
+  });
+}
 
-  try {
-    // 1. Create Auth user
-    const { data: authData, error: authError } =
-      await supabase.auth.signUp({
-        email,
-        password
-      });
+/* =========================
+   SIGNUP HANDLER
+========================= */
+if (signupBtn) {
+  signupBtn.addEventListener("click", async () => {
+    message.textContent = "Processing...";
 
-    if (authError) throw authError;
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    const country = countryInput.value.trim();
+    const termsAccepted = termsCheckbox.checked;
+    const privacyAccepted = privacyCheckbox.checked;
 
-    const userId = authData.user.id;
+    /* ---------- BASIC VALIDATION ---------- */
+    if (!email || !password || !country) {
+      message.textContent = "All fields are required.";
+      return;
+    }
 
-    // 2. Insert user profile
-    const { error: profileError } = await supabase
-      .from("users_profile")
-      .insert({
-        id: userId,
-        email: email,
-        full_name: "N/A",
-        country: country,
-        currency_code: "PHP",
-        currency_symbol: "₱"
-      });
+    if (!termsAccepted || !privacyAccepted) {
+      message.textContent = "You must accept Terms and Privacy.";
+      return;
+    }
 
-    if (profileError) throw profileError;
+    try {
+      /* ---------- 1. CREATE AUTH USER ---------- */
+      const { data: authData, error: authError } =
+        await supabase.auth.signUp({
+          email,
+          password
+        });
 
-    // 3. Insert legal acceptance
-    const { error: legalError } = await supabase
-      .from("legal_acceptance")
-      .insert({
-        user_id: userId,
-        terms_accepted: true,
-        privacy_accepted: true
-      });
+      if (authError) throw authError;
 
-    if (legalError) throw legalError;
+      if (!authData.user) {
+        throw new Error("User creation failed.");
+      }
 
-    message.textContent = "Account created successfully.";
+      const userId = authData.user.id;
 
-  } catch (err) {
-    message.textContent = err.message;
-  }
-});
+      /* ---------- 2. INSERT USER PROFILE ---------- */
+      const { error: profileError } = await supabase
+        .from("users_profile")
+        .insert({
+          id: userId,
+          email: email,
+          full_name: "N/A",
+          country: country,
+          currency_code: "PHP",     // temporary (Phase 1.3 will improve this)
+          currency_symbol: "₱"
+        });
+
+      if (profileError) throw profileError;
+
+      /* ---------- 3. INSERT LEGAL ACCEPTANCE ---------- */
+      const { error: legalError } = await supabase
+        .from("legal_acceptance")
+        .insert({
+          user_id: userId,
+          terms_accepted: true,
+          privacy_accepted: true
+        });
+
+      if (legalError) throw legalError;
+
+      message.textContent = "Account created successfully.";
+
+    } catch (err) {
+      message.textContent = err.message || "Signup failed.";
+    }
+  });
+}
