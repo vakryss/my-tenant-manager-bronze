@@ -3,66 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <title>My Tenant Manager – Bronze</title>
+
+  <!-- HARD BLOCK RENDERING BEFORE JS -->
+  <style>
+    html {
+      visibility: hidden;
+    }
+  </style>
+
+  <!-- AUTH GATE RUNS BEFORE PAGE SHOWS -->
+  <script type="module">
+    import { supabase } from "./scripts/supabase.js";
+
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+      window.location.replace("/login.html");
+    } else {
+      // Auth confirmed — allow render
+      document.documentElement.style.visibility = "visible";
+    }
+  </script>
 </head>
 
 <body>
 
-<!-- =========================
-     AUTH GATE (NO FLASH)
-========================= -->
-<script type="module">
-  import { requireAuth } from "./scripts/session.js";
+  <h1>My Tenant Manager</h1>
+  <p>Bronze Tier</p>
 
-  // Hide everything immediately
-  document.documentElement.style.visibility = "hidden";
+  <button id="testBtn">Test Supabase Connection</button>
+  <p id="result">N/A</p>
 
-  // Wait for auth check
-  await requireAuth();
+  <button id="logoutBtn">Logout</button>
 
-  // If authenticated, show page
-  document.documentElement.style.visibility = "visible";
-</script>
+  <script type="module">
+    import { supabase } from "./scripts/supabase.js";
+    import { logout } from "./scripts/session.js";
 
-<!-- =========================
-     PAGE CONTENT
-========================= -->
-<h1>My Tenant Manager</h1>
-<p>Bronze Tier</p>
-
-<button id="testBtn">Test Supabase Connection</button>
-<p id="result">N/A</p>
-
-<button id="logoutBtn">Logout</button>
-
-<!-- =========================
-     SUPABASE TEST + LOGOUT
-========================= -->
-<script type="module">
-  import { supabase } from "./scripts/supabase.js";
-  import { logout } from "./scripts/session.js";
-
-  /* ---- Supabase Connection Test ---- */
-  const btn = document.getElementById("testBtn");
-  const result = document.getElementById("result");
-
-  btn.addEventListener("click", async () => {
-    try {
+    /* ---- Supabase Connection Test ---- */
+    document.getElementById("testBtn").addEventListener("click", async () => {
       const { error } = await supabase.auth.getSession();
+      document.getElementById("result").textContent =
+        error ? "Error: " + error.message : "Supabase connected successfully.";
+    });
 
-      if (error) {
-        result.textContent = "Error: " + error.message;
-      } else {
-        result.textContent = "Supabase connected successfully.";
-      }
-    } catch {
-      result.textContent = "Unexpected error.";
-    }
-  });
-
-  /* ---- Logout ---- */
-  const logoutBtn = document.getElementById("logoutBtn");
-  logoutBtn.addEventListener("click", logout);
-</script>
+    /* ---- Logout ---- */
+    document.getElementById("logoutBtn").addEventListener("click", logout);
+  </script>
 
 </body>
 </html>
