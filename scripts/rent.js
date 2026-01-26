@@ -1,16 +1,25 @@
 import { supabase } from "./supabase.js";
 import { logout } from "./session.js";
 
+/* =========================
+   ELEMENTS
+========================= */
 const rentTableBody = document.getElementById("rentTableBody");
 const rentMessage = document.getElementById("rentMessage");
 const generateBtn = document.getElementById("generateRentBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 
+/* =========================
+   HELPERS
+========================= */
 function getCurrentMonthDate() {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), 1);
 }
 
+/* =========================
+   LOAD RENT CHARGES
+========================= */
 async function loadRentCharges() {
   const { data, error } = await supabase
     .from("rent_charges")
@@ -23,7 +32,8 @@ async function loadRentCharges() {
     .order("due_date");
 
   if (error) {
-    console.error(error.message);
+    console.error("Load rent error:", error.message);
+    rentMessage.textContent = error.message;
     return;
   }
 
@@ -47,22 +57,39 @@ async function loadRentCharges() {
   });
 }
 
+/* =========================
+   GENERATE RENT (FIXED)
+========================= */
 async function generateRent() {
   rentMessage.textContent = "Generating rent...";
-  const { data: tenants } = await supabase
+
+  /* --- Auth guard --- */
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    rentMessage.textContent = "Not authenticated.";
+    return;
+  }
+
+  /* --- Load tenants --- */
+  const { data: tenants, error: tenantError } = await supabase
     .from("tenants")
     .select("id, tenant_name, monthly_rent, rent_due_day");
+
+  if (tenantError) {
+    rentMessage.textContent = tenantError.message;
+    return;
+  }
 
   if (!tenants || tenants.length === 0) {
     rentMessage.textContent = "No tenants found.";
     return;
   }
 
-  const { data: { user } } = await supabase.auth.getUser();
   const monthDate = getCurrentMonthDate();
 
-  const inserts = tenants.map(t => {
-    const due = new Date(
+  /* --- Build rent charges --- */
+  const charges = tenants.map(t => {
+    const dueDate = new Date(
       monthDate.getFullYear(),
       monthDate.getMonth(),
       t.rent_due_day
@@ -73,16 +100,19 @@ async function generateRent() {
       tenant_id: t.id,
       charge_month: monthDate,
       amount: t.monthly_rent,
-      due_date: due
+      due_date: dueDate
     };
   });
 
-  const { error } = await supabase
+  /* --- UPSERT (prevents duplicates) --- */
+  const { error: insertError } = await supabase
     .from("rent_charges")
-    .insert(inserts, { ignoreDuplicates: true });
+    .upsert(charges, {
+      onConflict: "tenant_id,charge_month"
+    });
 
-  if (error) {
-    rentMessage.textContent = error.message;
+  if (insertError) {
+    rentMessage.textContent = insertError.message;
     return;
   }
 
@@ -90,7 +120,13 @@ async function generateRent() {
   await loadRentCharges();
 }
 
+/* =========================
+   EVENTS
+========================= */
 generateBtn.addEventListener("click", generateRent);
 logoutBtn.addEventListener("click", logout);
 
+/* =========================
+   INIT
+========================= */
 loadRentCharges();
