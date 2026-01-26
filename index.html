@@ -8,7 +8,30 @@
 
   <h1>My Tenant Manager</h1>
   <p>Bronze Tier</p>
-  <p>If you can see this, GitHub and Vercel are connected correctly.</p>
+
+  <button id="testBtn">Test Supabase Connection</button>
+  <p id="result">N/A</p>
+
+  <script type="module">
+    import { supabase } from "./scripts/supabase.js";
+
+    const btn = document.getElementById("testBtn");
+    const result = document.getElementById("result");
+
+    btn.addEventListener("click", async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+
+        if (error) {
+          result.textContent = "Error: " + error.message;
+        } else {
+          result.textContent = "Supabase connected successfully.";
+        }
+      } catch (err) {
+        result.textContent = "Unexpected error.";
+      }
+    });
+  </script>
 
 </body>
 </html>
