@@ -6,43 +6,60 @@
 </head>
 
 <body>
-  
+
+<!-- =========================
+     AUTH GATE (NO FLASH)
+========================= -->
 <script type="module">
   import { requireAuth } from "./scripts/session.js";
-  requireAuth();
+
+  // Hide everything immediately
+  document.documentElement.style.visibility = "hidden";
+
+  // Wait for auth check
+  await requireAuth();
+
+  // If authenticated, show page
+  document.documentElement.style.visibility = "visible";
 </script>
-  
+
+<!-- =========================
+     PAGE CONTENT
+========================= -->
 <h1>My Tenant Manager</h1>
-  <p>Bronze Tier</p>
+<p>Bronze Tier</p>
 
-  <button id="testBtn">Test Supabase Connection</button>
-  <p id="result">N/A</p>
+<button id="testBtn">Test Supabase Connection</button>
+<p id="result">N/A</p>
 
-  <script type="module">
-    import { supabase } from "./scripts/supabase.js";
-
-    const btn = document.getElementById("testBtn");
-    const result = document.getElementById("result");
-
-    btn.addEventListener("click", async () => {
-      try {
-        const { data, error } = await supabase.auth.getSession();
-
-        if (error) {
-          result.textContent = "Error: " + error.message;
-        } else {
-          result.textContent = "Supabase connected successfully.";
-        }
-      } catch (err) {
-        result.textContent = "Unexpected error.";
-      }
-    });
-  </script>
-  
 <button id="logoutBtn">Logout</button>
+
+<!-- =========================
+     SUPABASE TEST + LOGOUT
+========================= -->
 <script type="module">
+  import { supabase } from "./scripts/supabase.js";
   import { logout } from "./scripts/session.js";
 
+  /* ---- Supabase Connection Test ---- */
+  const btn = document.getElementById("testBtn");
+  const result = document.getElementById("result");
+
+  btn.addEventListener("click", async () => {
+    try {
+      const { error } = await supabase.auth.getSession();
+
+      if (error) {
+        result.textContent = "Error: " + error.message;
+      } else {
+        result.textContent = "Supabase connected successfully.";
+      }
+    } catch {
+      result.textContent = "Unexpected error.";
+    }
+  });
+
+  /* ---- Logout ---- */
   const logoutBtn = document.getElementById("logoutBtn");
   logoutBtn.addEventListener("click", logout);
 </script>
