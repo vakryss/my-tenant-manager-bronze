@@ -4,14 +4,18 @@
   <meta charset="UTF-8">
   <title>My Tenant Manager – Bronze</title>
 
-  <!-- HARD BLOCK RENDERING BEFORE JS -->
+  <!-- =================================
+       HARD BLOCK RENDER (NO FLASH)
+  ================================= -->
   <style>
     html {
       visibility: hidden;
     }
   </style>
 
-  <!-- AUTH GATE RUNS BEFORE PAGE SHOWS -->
+  <!-- =================================
+       AUTH GATE (RUNS BEFORE PAINT)
+  ================================= -->
   <script type="module">
     import { supabase } from "./scripts/supabase.js";
 
@@ -20,7 +24,6 @@
     if (!session) {
       window.location.replace("/login.html");
     } else {
-      // Auth confirmed — allow render
       document.documentElement.style.visibility = "visible";
     }
   </script>
@@ -31,24 +34,97 @@
   <h1>My Tenant Manager</h1>
   <p>Bronze Tier</p>
 
+  <hr>
+
+  <!-- =================================
+       LANDLORD PROFILE (READ-ONLY)
+  ================================= -->
+  <h2>Landlord Profile</h2>
+
+  <p>
+    <strong>Email:</strong>
+    <span id="profileEmail">N/A</span>
+  </p>
+
+  <p>
+    <strong>Country:</strong>
+    <span id="profileCountry">N/A</span>
+  </p>
+
+  <p>
+    <strong>Currency:</strong>
+    <span id="profileCurrency">N/A</span>
+  </p>
+
+  <hr>
+
+  <!-- =================================
+       SUPABASE TEST
+  ================================= -->
   <button id="testBtn">Test Supabase Connection</button>
   <p id="result">N/A</p>
 
+  <hr>
+
+  <!-- =================================
+       LOGOUT
+  ================================= -->
   <button id="logoutBtn">Logout</button>
 
+  <!-- =================================
+       PAGE LOGIC
+  ================================= -->
   <script type="module">
     import { supabase } from "./scripts/supabase.js";
     import { logout } from "./scripts/session.js";
 
-    /* ---- Supabase Connection Test ---- */
+    /* -----------------------------
+       LOAD LANDLORD PROFILE
+    ----------------------------- */
+    async function loadProfile() {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("users_profile")
+        .select("email, country, currency_code, currency_symbol")
+        .eq("id", user.id)
+        .single();
+
+      if (error) {
+        console.error("Profile load error:", error.message);
+        return;
+      }
+
+      document.getElementById("profileEmail").textContent =
+        data.email || "N/A";
+
+      document.getElementById("profileCountry").textContent =
+        data.country || "N/A";
+
+      document.getElementById("profileCurrency").textContent =
+        `${data.currency_symbol} (${data.currency_code})`;
+    }
+
+    /* -----------------------------
+       SUPABASE CONNECTION TEST
+    ----------------------------- */
     document.getElementById("testBtn").addEventListener("click", async () => {
       const { error } = await supabase.auth.getSession();
       document.getElementById("result").textContent =
         error ? "Error: " + error.message : "Supabase connected successfully.";
     });
 
-    /* ---- Logout ---- */
+    /* -----------------------------
+       LOGOUT
+    ----------------------------- */
     document.getElementById("logoutBtn").addEventListener("click", logout);
+
+    /* -----------------------------
+       INIT
+    ----------------------------- */
+    loadProfile();
   </script>
 
 </body>
