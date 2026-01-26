@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rent – My Tenant Manager</title>
+
+  <style>
+    html { visibility: hidden; }
+  </style>
+
+  <script type="module">
+    import { supabase } from "./scripts/supabase.js";
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      window.location.replace("/login.html");
+    } else {
+      document.documentElement.style.visibility = "visible";
+    }
+  </script>
+</head>
+
+<body>
+
+<h1>Rent Charges</h1>
+<p>Bronze Tier</p>
+
+<hr>
+
+<button id="generateRentBtn">Generate Rent for Current Month</button>
+<p id="rentMessage">N/A</p>
+
+<hr>
+
+<h2>Current Month Charges</h2>
+
+<table border="1" cellpadding="6">
+  <thead>
+    <tr>
+      <th>Tenant</th>
+      <th>Amount</th>
+      <th>Due Date</th>
+      <th>Month</th>
+    </tr>
+  </thead>
+  <tbody id="rentTableBody">
+    <tr><td colspan="4">N/A</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<button onclick="window.location.href='/index.html'">Back to Dashboard</button>
+<button id="logoutBtn">Logout</button>
+
+<script type="module" src="./scripts/rent.js"></script>
+
+</body>
+</html>
