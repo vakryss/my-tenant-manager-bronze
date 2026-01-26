@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tenant Ledger – My Tenant Manager</title>
+
+  <style>
+    html { visibility: hidden; }
+  </style>
+
+  <script type="module">
+    import { supabase } from "./scripts/supabase.js";
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      window.location.replace("/login.html");
+    } else {
+      document.documentElement.style.visibility = "visible";
+    }
+  </script>
+</head>
+
+<body>
+
+<h1>Tenant Ledger</h1>
+<p>Bronze Tier</p>
+
+<hr>
+
+<label>Select Tenant</label><br>
+<select id="tenantSelect">
+  <option value="">N/A</option>
+</select>
+
+<hr>
+
+<table border="1" cellpadding="6">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Category</th>
+      <th>Amount</th>
+      <th>Running Balance</th>
+    </tr>
+  </thead>
+  <tbody id="ledgerBody">
+    <tr><td colspan="4">N/A</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<button onclick="window.location.href='/ledger.html'">
+  Back to General Ledger
+</button>
+
+<button onclick="window.location.href='/index.html'">
+  Back to Dashboard
+</button>
+
+<button id="logoutBtn">Logout</button>
+
+<script type="module" src="./scripts/tenant-ledger.js"></script>
+
+</body>
+</html>
