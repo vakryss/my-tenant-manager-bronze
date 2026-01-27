@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
           cursor:pointer;
           user-select:none;
         "
-      >i</span>
+      >ℹ️</span>
 
       <div
         id="tooltip-${tenantId}"
