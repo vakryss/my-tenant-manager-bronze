@@ -103,8 +103,18 @@ document.addEventListener("DOMContentLoaded", () => {
   if (submitAddBtn) {
     submitAddBtn.addEventListener("click", async () => {
       if (!confirm("Add this tenant?")) return;
+       
+const {
+  data: { user }
+} = await supabase.auth.getUser();
+
+if (!user) {
+  alert("Not authenticated");
+  return;
+}
 
       const payload = {
+        user_id: user.id,
         tenant_name: $("addTenantName").value.trim(),
         monthly_rent: Number($("addMonthlyRent").value),
         rent_due_day: Number($("addRentDueDay").value),
