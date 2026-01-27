@@ -1,84 +1,145 @@
 import { supabase } from "./supabase.js";
 
-/* ELEMENTS */
-const tableBody = document.getElementById("tenantTableBody");
-const addModal = document.getElementById("addModal");
-const editModal = document.getElementById("editModal");
+/* =========================
+   SAFE ELEMENT GETTERS
+========================= */
+const $ = id => document.getElementById(id);
 
-/* UTILITIES */
-const getChecked = group =>
-  Array.from(group.querySelectorAll("input:checked")).map(c => c.value);
+/* TABLE */
+const tenantTableBody = $("tenantTableBody");
 
-/* LOAD */
+/* MODALS */
+const addModal = $("addModal");
+const editModal = $("editModal");
+
+/* ADD FORM */
+const openAddBtn = $("openAddModal");
+const submitAddBtn = $("submitAdd");
+
+/* EDIT FORM */
+const submitEditBtn = $("submitEdit");
+
+/* =========================
+   HELPERS
+========================= */
+function getChecked(groupId) {
+  const group = $(groupId);
+  if (!group) return [];
+  return Array.from(group.querySelectorAll("input:checked")).map(cb => cb.value);
+}
+
+function closeModal(modal) {
+  if (modal) modal.style.display = "none";
+}
+
+function openModal(modal) {
+  if (modal) modal.style.display = "flex";
+}
+
+/* =========================
+   LOAD TENANTS
+========================= */
 async function loadTenants() {
-  const { data } = await supabase
+  if (!tenantTableBody) return;
+
+  const { data, error } = await supabase
     .from("tenants")
     .select("id, tenant_name, monthly_rent, rent_due_day, utilities")
-    .order("created_at");
+    .order("created_at", { ascending: true });
 
-  tableBody.innerHTML = "";
+  if (error) {
+    console.error("Load tenants failed:", error.message);
+    return;
+  }
+
+  tenantTableBody.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    tenantTableBody.innerHTML =
+      `<tr><td colspan="5">No tenants yet</td></tr>`;
+    return;
+  }
 
   data.forEach(t => {
     const tr = document.createElement("tr");
+
     tr.innerHTML = `
       <td>${t.tenant_name}</td>
-      <td>₱${t.monthly_rent}</td>
+      <td>₱${Number(t.monthly_rent).toFixed(2)}</td>
       <td>${t.rent_due_day}</td>
-      <td>${(t.utilities || []).join(", ")}</td>
-      <td><button class="secondary" onclick="openEditModal(${JSON.stringify(t).replace(/"/g,"'")})">Edit</button></td>
+      <td>${(t.utilities || []).join(", ") || "—"}</td>
+      <td>
+        <button class="secondary" data-id="${t.id}">Edit</button>
+      </td>
     `;
-    tableBody.appendChild(tr);
+
+    tr.querySelector("button").addEventListener("click", () => openEdit(t));
+    tenantTableBody.appendChild(tr);
   });
 }
 
-/* ADD */
-document.getElementById("openAddModal").onclick = () => addModal.style.display = "flex";
-window.closeAddModal = () => addModal.style.display = "none";
+/* =========================
+   ADD TENANT
+========================= */
+if (openAddBtn && addModal) {
+  openAddBtn.addEventListener("click", () => openModal(addModal));
+}
 
-document.getElementById("submitAdd").onclick = async () => {
-  if (!confirm("Add this tenant?")) return;
+if (submitAddBtn) {
+  submitAddBtn.addEventListener("click", async () => {
+    if (!confirm("Add this tenant?")) return;
 
-  await supabase.from("tenants").insert({
-    tenant_name: addTenantName.value,
-    monthly_rent: addMonthlyRent.value,
-    rent_due_day: addRentDueDay.value,
-    utilities: getChecked(addUtilities)
+    await supabase.from("tenants").insert({
+      tenant_name: $("addTenantName").value,
+      monthly_rent: $("addMonthlyRent").value,
+      rent_due_day: $("addRentDueDay").value,
+      utilities: getChecked("addUtilities")
+    });
+
+    closeModal(addModal);
+    loadTenants();
   });
+}
 
-  closeAddModal();
-  loadTenants();
-};
+/* =========================
+   EDIT TENANT
+========================= */
+function openEdit(t) {
+  if (!editModal) return;
 
-/* EDIT */
-window.openEditModal = tenant => {
-  editModal.style.display = "flex";
-  editTenantId.value = tenant.id;
-  editTenantName.value = tenant.tenant_name;
-  editMonthlyRent.value = tenant.monthly_rent;
-  editRentDueDay.value = tenant.rent_due_day;
-  editUtilities.querySelectorAll("input").forEach(cb => {
-    cb.checked = tenant.utilities?.includes(cb.value);
+  openModal(editModal);
+  $("editTenantId").value = t.id;
+  $("editTenantName").value = t.tenant_name;
+  $("editMonthlyRent").value = t.monthly_rent;
+  $("editRentDueDay").value = t.rent_due_day;
+
+  $("editUtilities")
+    .querySelectorAll("input")
+    .forEach(cb => {
+      cb.checked = (t.utilities || []).includes(cb.value);
+    });
+}
+
+if (submitEditBtn) {
+  submitEditBtn.addEventListener("click", async () => {
+    if (!confirm("Update this tenant?")) return;
+
+    await supabase
+      .from("tenants")
+      .update({
+        tenant_name: $("editTenantName").value,
+        monthly_rent: $("editMonthlyRent").value,
+        rent_due_day: $("editRentDueDay").value,
+        utilities: getChecked("editUtilities")
+      })
+      .eq("id", $("editTenantId").value);
+
+    closeModal(editModal);
+    loadTenants();
   });
-};
+}
 
-window.closeEditModal = () => editModal.style.display = "none";
-
-document.getElementById("submitEdit").onclick = async () => {
-  if (!confirm("Update this tenant?")) return;
-
-  await supabase
-    .from("tenants")
-    .update({
-      tenant_name: editTenantName.value,
-      monthly_rent: editMonthlyRent.value,
-      rent_due_day: editRentDueDay.value,
-      utilities: getChecked(editUtilities)
-    })
-    .eq("id", editTenantId.value);
-
-  closeEditModal();
-  loadTenants();
-};
-
-/* INIT */
+/* =========================
+   INIT
+========================= */
 loadTenants();
