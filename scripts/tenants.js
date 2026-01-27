@@ -15,6 +15,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
 if (openAddBtn && addModal) {
   openAddBtn.addEventListener("click", () => {
+
+    // 🔄 RESET ADD TENANT FORM FIELDS
+    document.getElementById("addTenantName").value = "";
+    document.getElementById("addMonthlyRent").value = "";
+    document.getElementById("addRentDueDay").value = "";
+
+    document
+      .querySelectorAll("#addUtilities input[type='checkbox']")
+      .forEach(cb => cb.checked = false);
+
+    // 🔄 RESET SAVE BUTTON STATE
+    submitAddBtn.disabled = false;
+    submitAddBtn.textContent = "Save";
+
+    // OPEN MODAL
     addModal.style.display = "flex";
   });
 }
