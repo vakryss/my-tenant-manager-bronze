@@ -180,64 +180,53 @@
       border-radius: 6px;
       cursor: pointer;
     }
-    
-    /* =========================
-   MODAL POLISH
-========================= */
-.modal {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 22px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-  animation: modalFadeIn 0.25s ease;
-}
 
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
 
-.modal h2 {
-  margin-top: 0;
-  margin-bottom: 14px;
-  font-size: 1.25rem;
-  color: #3a2a1f;
-}
+    .modal {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 420px;
+    }
 
-.modal label {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #6b7280;
-}
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 12px;
+      display: block;
+    }
 
-.modal input,
-.modal select {
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  padding: 10px;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      font-size: 0.9rem;
+    }
 
-.modal input:focus,
-.modal select:focus {
-  outline: none;
-  border-color: #AA7E63;
-  box-shadow: 0 0 0 2px rgba(170,126,99,0.2);
-}
+    .checkbox-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
 
-.modal-actions {
-  margin-top: 20px;
-  padding-top: 12px;
-  border-top: 1px solid #e5e7eb;
-}
-    
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
     @media (min-width: 768px) {
       .mobile-header {
         display: none;
@@ -328,68 +317,7 @@
                 <th>Monthly Rent</th>
                 <th>Due Day</th>
                 <th>Utilities</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="tenantTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </main>
-
-  </div>
-
-  <!-- SCRIPT -->
-  <script type="module" src="./scripts/tenants.js"></script>
-
-  <!-- ADD TENANT MODAL -->
-  <div class="modal-overlay" id="addModal">
-    <div class="modal">
-      <h2>Add Tenant</h2>
-
-      <label>Tenant Name</label>
-      <input id="addTenantName" type="text">
-
-      <label>Monthly Rent</label>
-      <input id="addMonthlyRent" type="number">
-
-      <label>Rent Due Day</label>
-      <input id="addRentDueDay" type="number" min="1" max="31">
-
-      <label>Utilities</label>
-      <div class="checkbox-group" id="addUtilities">
-        <label><input type="checkbox" value="Electric"> Electric</label>
-        <label><input type="checkbox" value="Water"> Water</label>
-        <label><input type="checkbox" value="Wi-Fi"> Wi-Fi</label>
-      </div>
-
-      <div class="modal-actions">
-        <button class="secondary" onclick="document.getElementById('addModal').style.display='none'">Cancel</button>
-        <button class="primary" id="submitAdd">Save</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- EDIT TENANT MODAL -->
-  <div class="modal-overlay" id="editModal">
-    <div class="modal">
-      <h2>Edit Tenant</h2>
-
-      <input type="hidden" id="editTenantId">
-
-      <label>Tenant Name</label>
-      <input id="editTenantName" type="text">
-
-      <label>Monthly Rent</label>
-      <input id="editMonthlyRent" type="number">
-
-      <label>Rent Due Day</label>
-      <input id="editRentDueDay" type="number" min="1" max="31">
-
-      <label>Utilities</label>
-      <div class="checkbox-group" id="editUtilities">
-        <label><input type="checkbox" value="Electric"> Electric</label>
-        <label><input type="checkbox" value="Water"> Water</label>
+@@ -370,12 +382,29 @@
         <label><input type="checkbox" value="Wi-Fi"> Wi-Fi</label>
       </div>
 
