@@ -5,16 +5,12 @@
   <title>Dashboard – My Tenant Manager</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- ===============================
-       HARD BLOCK RENDER (NO FLASH)
-  =============================== -->
+  <!-- NO FLASH -->
   <style>
     html { visibility: hidden; }
   </style>
 
-  <!-- ===============================
-       AUTH GATE
-  =============================== -->
+  <!-- AUTH GATE -->
   <script type="module">
     import { supabase } from "./scripts/supabase.js";
     const { data: { session } } = await supabase.auth.getSession();
@@ -25,9 +21,6 @@
     }
   </script>
 
-  <!-- ===============================
-       BASE + SIDEBAR STYLES
-  =============================== -->
   <style>
     * { box-sizing: border-box; }
 
@@ -38,30 +31,26 @@
       color: #1a1a1a;
     }
 
-    /* ---------- Layout ---------- */
     .app {
       display: flex;
       min-height: 100vh;
       overflow-x: hidden;
     }
 
-    /* ---------- Sidebar ---------- */
+    /* SIDEBAR */
     .sidebar {
       background: #AA7E63;
       color: #fff;
       width: 220px;
       padding: 16px;
       display: none;
-      flex-shrink: 0;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
-    .sidebar h2 {
-      font-size: 1rem;
-      margin-bottom: 16px;
-    }
+    .nav-group { display: flex; flex-direction: column; }
 
     .nav-link {
-      display: block;
       padding: 10px 12px;
       margin-bottom: 6px;
       border-radius: 6px;
@@ -77,14 +66,12 @@
 
     .nav-link.active {
       background: #8f6248;
-      color: #fff;
       font-weight: 600;
     }
 
-    /* ---------- Mobile Header ---------- */
+    /* MOBILE HEADER */
     .mobile-header {
       display: flex;
-      align-items: center;
       justify-content: space-between;
       padding: 12px 16px;
       background: #AA7E63;
@@ -94,18 +81,14 @@
     .menu-btn {
       background: none;
       border: none;
-      font-size: 1rem;
       color: #fff;
-      cursor: pointer;
+      font-size: 1rem;
     }
 
-    /* ---------- Mobile Menu Overlay ---------- */
+    /* MOBILE MENU */
     .mobile-menu {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
       background: rgba(0,0,0,0.4);
       display: none;
       z-index: 10;
@@ -116,19 +99,24 @@
       width: 240px;
       height: 100%;
       padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
-    /* ---------- Main Content ---------- */
+    /* CONTENT */
     .content {
       flex: 1;
       padding: 16px;
-      max-width: 100%;
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1000px;
       margin: 0 auto;
     }
+
+    h1 { font-size: 1.4rem; }
+    h2 { font-size: 1.05rem; margin-bottom: 8px; }
 
     .card {
       background: #fff;
@@ -138,169 +126,190 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
-    h1 { font-size: 1.4rem; margin-bottom: 4px; }
-    h2 { font-size: 1.05rem; margin: 16px 0 10px; }
-    p { font-size: 0.9rem; color: #555; }
-
-    .field { margin-bottom: 10px; font-size: 0.9rem; }
-    .field strong { width: 110px; display: inline-block; }
-
-    input {
+    table {
       width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+      border-collapse: collapse;
       font-size: 0.9rem;
     }
 
-    button {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: none;
-      background: #2563eb;
-      color: #fff;
-      font-size: 0.95rem;
-      margin-top: 8px;
-      cursor: pointer;
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
     }
 
-    button.danger { background: #dc2626; }
+    th {
+      background: #f1f5f9;
+      font-weight: 600;
+    }
 
-    /* ---------- Tablet & Desktop ---------- */
     @media (min-width: 768px) {
       .mobile-header { display: none; }
-      .sidebar { display: block; }
-      .mobile-menu { display: none !important; }
+      .sidebar { display: flex; }
     }
   </style>
 </head>
 
 <body>
 
-<!-- ===============================
-     MOBILE HEADER
-=============================== -->
+<!-- MOBILE HEADER -->
 <div class="mobile-header">
   <strong>My Tenant Manager</strong>
   <button class="menu-btn" id="openMenu">☰ Menu</button>
 </div>
 
-<!-- ===============================
-     MOBILE MENU
-=============================== -->
+<!-- MOBILE MENU -->
 <div class="mobile-menu" id="mobileMenu">
   <div class="mobile-menu-content">
-    <h2>Menu</h2>
-    <a class="nav-link active" href="/index.html">Dashboard</a>
-    <a class="nav-link" href="/tenants.html">Tenants</a>
-    <a class="nav-link" href="/rent.html">Rent</a>
-    <a class="nav-link" href="/utilities.html">Utilities</a>
-    <a class="nav-link" href="/payments.html">Payments</a>
-    <a class="nav-link" href="/ledger.html">General Ledger</a>
-    <a class="nav-link" href="/tenant-ledger.html">Tenant Ledger</a>
+    <div class="nav-group">
+      <a class="nav-link active" href="/index.html">Dashboard</a>
+      <a class="nav-link" href="/tenants.html">Tenants</a>
+      <a class="nav-link" href="/rent.html">Rent</a>
+      <a class="nav-link" href="/utilities.html">Utilities</a>
+      <a class="nav-link" href="/payments.html">Payments</a>
+      <a class="nav-link" href="/ledger.html">General Ledger</a>
+      <a class="nav-link" href="/tenant-ledger.html">Tenant Ledger</a>
+      <a class="nav-link" href="/profile.html">My Profile</a>
+    </div>
+    <div class="nav-group">
+      <a class="nav-link" href="/settings.html">App Settings</a>
+      <a class="nav-link" href="#" id="mobileLogout">Logout</a>
+    </div>
   </div>
 </div>
 
 <div class="app">
 
-  <!-- ===============================
-       SIDEBAR (DESKTOP)
-  =============================== -->
+  <!-- SIDEBAR -->
   <aside class="sidebar">
-    <h2>My Tenant Manager</h2>
-    <a class="nav-link active" href="/index.html">Dashboard</a>
-    <a class="nav-link" href="/tenants.html">Tenants</a>
-    <a class="nav-link" href="/rent.html">Rent</a>
-    <a class="nav-link" href="/utilities.html">Utilities</a>
-    <a class="nav-link" href="/payments.html">Payments</a>
-    <a class="nav-link" href="/ledger.html">General Ledger</a>
-    <a class="nav-link" href="/tenant-ledger.html">Tenant Ledger</a>
+    <div class="nav-group">
+      <a class="nav-link active" href="/index.html">Dashboard</a>
+      <a class="nav-link" href="/tenants.html">Tenants</a>
+      <a class="nav-link" href="/rent.html">Rent</a>
+      <a class="nav-link" href="/utilities.html">Utilities</a>
+      <a class="nav-link" href="/payments.html">Payments</a>
+      <a class="nav-link" href="/ledger.html">General Ledger</a>
+      <a class="nav-link" href="/tenant-ledger.html">Tenant Ledger</a>
+      <a class="nav-link" href="/profile.html">My Profile</a>
+    </div>
+    <div class="nav-group">
+      <a class="nav-link" href="/settings.html">App Settings</a>
+      <a class="nav-link" href="#" id="logoutBtn">Logout</a>
+    </div>
   </aside>
 
-  <!-- ===============================
-       MAIN CONTENT
-  =============================== -->
+  <!-- MAIN CONTENT -->
   <main class="content">
     <div class="container">
 
       <h1>Dashboard</h1>
-      <p>Bronze Tier</p>
 
       <div class="card">
-        <h2>Landlord Profile</h2>
-
-        <div class="field"><strong>Email:</strong> <span id="profileEmail">N/A</span></div>
-        <div class="field"><strong>Country:</strong> <span id="profileCountry">N/A</span></div>
-        <div class="field"><strong>Currency:</strong> <span id="profileCurrency">N/A</span></div>
-        <div class="field"><strong>Full Name:</strong> <span id="profileFullName">N/A</span></div>
+        <h2>Outstanding Tenant Balances</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Tenant</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
+          <tbody id="balanceTable">
+            <tr><td colspan="2">Loading…</td></tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="card">
-        <h2>Edit Profile</h2>
-        <input id="fullNameInput" type="text" placeholder="Full name">
-        <button id="saveProfileBtn">Save Profile</button>
-        <div id="profileMessage" class="message">N/A</div>
-      </div>
-
-      <div class="card">
-        <button id="logoutBtn" class="danger">Logout</button>
+        <h2>Utility Charges (Recent)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Tenant</th>
+              <th>Utility</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody id="utilityTable">
+            <tr><td colspan="4">Loading…</td></tr>
+          </tbody>
+        </table>
       </div>
 
     </div>
   </main>
 </div>
 
-<!-- ===============================
-     PAGE LOGIC
-=============================== -->
 <script type="module">
   import { supabase } from "./scripts/supabase.js";
   import { logout } from "./scripts/session.js";
 
-  document.getElementById("openMenu").onclick = () =>
-    document.getElementById("mobileMenu").style.display = "block";
+  openMenu.onclick = () => mobileMenu.style.display = "block";
+  mobileMenu.onclick = () => mobileMenu.style.display = "none";
+  logoutBtn.onclick = logout;
+  mobileLogout.onclick = logout;
 
-  document.getElementById("mobileMenu").onclick = () =>
-    document.getElementById("mobileMenu").style.display = "none";
-
-  async function loadProfile() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
+  async function loadBalances() {
     const { data } = await supabase
-      .from("users_profile")
-      .select("email, country, currency_code, currency_symbol, full_name")
-      .eq("id", user.id)
-      .single();
+      .from("ledger_entries")
+      .select("tenant_id, amount, tenants(tenant_name)");
 
     if (!data) return;
 
-    profileEmail.textContent = data.email || "N/A";
-    profileCountry.textContent = data.country || "N/A";
-    profileCurrency.textContent = `${data.currency_symbol} (${data.currency_code})`;
-    profileFullName.textContent = data.full_name || "N/A";
-    fullNameInput.value = data.full_name || "";
+    const totals = {};
+    data.forEach(r => {
+      totals[r.tenant_id] =
+        (totals[r.tenant_id] || 0) + Number(r.amount);
+    });
+
+    balanceTable.innerHTML = "";
+
+    Object.entries(totals)
+      .filter(([_, amt]) => amt < 0)
+      .forEach(([_, amt]) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>Tenant</td>
+          <td>${amt.toFixed(2)}</td>
+        `;
+        balanceTable.appendChild(row);
+      });
+
+    if (!balanceTable.children.length) {
+      balanceTable.innerHTML =
+        "<tr><td colspan='2'>No outstanding balances.</td></tr>";
+    }
   }
 
-  async function updateProfile() {
-    profileMessage.textContent = "Saving...";
-    const fullName = fullNameInput.value.trim();
+  async function loadUtilities() {
+    const { data } = await supabase
+      .from("ledger_entries")
+      .select("entry_date, category, amount, tenants(tenant_name)")
+      .in("category", ["Electric", "Water", "Wi-Fi"])
+      .order("entry_date", { ascending: false })
+      .limit(10);
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    utilityTable.innerHTML = "";
 
-    await supabase.from("users_profile")
-      .update({ full_name: fullName || "N/A" })
-      .eq("id", user.id);
+    data?.forEach(r => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${r.entry_date}</td>
+        <td>${r.tenants?.tenant_name || "N/A"}</td>
+        <td>${r.category}</td>
+        <td>${Math.abs(r.amount).toFixed(2)}</td>
+      `;
+      utilityTable.appendChild(tr);
+    });
 
-    profileMessage.textContent = "Profile updated.";
-    loadProfile();
+    if (!data || !data.length) {
+      utilityTable.innerHTML =
+        "<tr><td colspan='4'>No utility records.</td></tr>";
+    }
   }
 
-  saveProfileBtn.onclick = updateProfile;
-  logoutBtn.onclick = logout;
-  loadProfile();
+  loadBalances();
+  loadUtilities();
 </script>
 
 </body>
