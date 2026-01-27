@@ -1,137 +1,193 @@
 import { supabase } from "./supabase.js";
 
+/* =========================
+   DOM READY
+========================= */
 document.addEventListener("DOMContentLoaded", () => {
 
+  /* =========================
+     ELEMENT SHORTCUT
+  ========================= */
   const $ = id => document.getElementById(id);
 
+  /* =========================
+     CORE ELEMENTS
+  ========================= */
   const tenantTableBody = $("tenantTableBody");
+
   const openAddBtn = $("openAddModal");
   const addModal = $("addModal");
   const editModal = $("editModal");
+
   const submitAddBtn = $("submitAdd");
   const submitEditBtn = $("submitEdit");
 
+  /* =========================
+     SAFETY CHECKS
+  ========================= */
+  if (!tenantTableBody) {
+    console.error("tenantTableBody not found");
+    return;
+  }
+
+  /* =========================
+     UTILITIES
+  ========================= */
   function getChecked(containerId) {
-    const c = $(containerId);
-    return c ? Array.from(c.querySelectorAll("input:checked")).map(cb => cb.value) : [];
+    const container = $(containerId);
+    if (!container) return [];
+    return Array.from(container.querySelectorAll("input:checked"))
+      .map(cb => cb.value);
   }
 
-  function openModal(m) { if (m) m.style.display = "flex"; }
-  function closeModal(m) { if (m) m.style.display = "none"; }
-
-  function confirmAction(title, message) {
-    return new Promise(resolve => {
-      $("confirmTitle").textContent = title;
-      $("confirmMessage").textContent = message;
-      openModal($("confirmModal"));
-
-      $("confirmYes").onclick = () => {
-        closeModal($("confirmModal"));
-        resolve(true);
-      };
-
-      $("confirmCancel").onclick = () => {
-        closeModal($("confirmModal"));
-        resolve(false);
-      };
-    });
+  function openModal(modal) {
+    if (modal) modal.style.display = "flex";
   }
 
+  function closeModal(modal) {
+    if (modal) modal.style.display = "none";
+  }
+
+  /* =========================
+     LOAD TENANTS
+  ========================= */
   async function loadTenants() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("tenants")
       .select("id, tenant_name, monthly_rent, rent_due_day, utilities")
-      .order("created_at");
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Failed to load tenants:", error.message);
+      return;
+    }
 
     tenantTableBody.innerHTML = "";
 
-    if (!data || !data.length) {
-      tenantTableBody.innerHTML = `<tr><td colspan="5">No tenants yet</td></tr>`;
+    if (!data || data.length === 0) {
+      tenantTableBody.innerHTML =
+        `<tr><td colspan="5">No tenants yet</td></tr>`;
       return;
     }
 
     data.forEach(t => {
       const tr = document.createElement("tr");
+
       tr.innerHTML = `
         <td>${t.tenant_name}</td>
         <td>₱${Number(t.monthly_rent).toFixed(2)}</td>
         <td>${t.rent_due_day}</td>
-        <td>${t.utilities?.join(", ") || "—"}</td>
-        <td><button class="secondary">Edit</button></td>
+        <td>${(t.utilities && t.utilities.length) ? t.utilities.join(", ") : "—"}</td>
+        <td>
+          <button class="secondary">Edit</button>
+        </td>
       `;
-      tr.querySelector("button").onclick = () => openEditModal(t);
+
+      tr.querySelector("button").addEventListener("click", () => {
+        openEditModal(t);
+      });
+
       tenantTableBody.appendChild(tr);
     });
   }
 
-  if (openAddBtn) openAddBtn.onclick = () => openModal(addModal);
-
-  if (submitAddBtn) {
-    submitAddBtn.onclick = async () => {
-      const ok = await confirmAction(
-        "Tenant Consent Required",
-        "Do you confirm the tenant approved storing their information?"
-      );
-      if (!ok) return;
-
-      submitAddBtn.disabled = true;
-      submitAddBtn.textContent = "Saving… Please wait…";
-
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("Not authenticated");
-
-        await supabase.from("tenants").insert({
-          user_id: user.id,
-          tenant_name: $("addTenantName").value.trim(),
-          monthly_rent: Number($("addMonthlyRent").value),
-          rent_due_day: Number($("addRentDueDay").value),
-          utilities: getChecked("addUtilities")
-        });
-
-        closeModal(addModal);
-        loadTenants();
-      } catch (e) {
-        alert(e.message);
-      } finally {
-        submitAddBtn.disabled = false;
-        submitAddBtn.textContent = "Save";
-      }
-    };
+  /* =========================
+     ADD TENANT
+  ========================= */
+  if (openAddBtn && addModal) {
+    openAddBtn.addEventListener("click", () => {
+      openModal(addModal);
+    });
   }
 
+  if (submitAddBtn) {
+    submitAddBtn.addEventListener("click", async () => {
+      if (!confirm("Add this tenant?")) return;
+  if (!confirm("Add this tenant?")) return;
+
+  // Disable button
+  submitAddBtn.disabled = true;
+  const originalText = submitAddBtn.textContent;
+  submitAddBtn.textContent = "Saving… Please wait...";
+
+const {
+  data: { user }
+} = await supabase.auth.getUser();
+
+if (!user) {
+  alert("Not authenticated");
+  return;
+}
+
+      const payload = {
+        user_id: user.id,
+        tenant_name: $("addTenantName").value.trim(),
+        monthly_rent: Number($("addMonthlyRent").value),
+        rent_due_day: Number($("addRentDueDay").value),
+        utilities: getChecked("addUtilities")
+      };
+
+      const { error } = await supabase.from("tenants").insert(payload);
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      closeModal(addModal);
+      loadTenants();
+    });
+  }
+
+  /* =========================
+     EDIT TENANT
+  ========================= */
   function openEditModal(t) {
+    if (!editModal) return;
+
     $("editTenantId").value = t.id;
     $("editTenantName").value = t.tenant_name;
     $("editMonthlyRent").value = t.monthly_rent;
     $("editRentDueDay").value = t.rent_due_day;
-    $("editUtilities").querySelectorAll("input").forEach(cb => {
+
+    const utilitiesContainer = $("editUtilities");
+    utilitiesContainer.querySelectorAll("input").forEach(cb => {
       cb.checked = (t.utilities || []).includes(cb.value);
     });
+
     openModal(editModal);
   }
 
   if (submitEditBtn) {
-    submitEditBtn.onclick = async () => {
-      const ok = await confirmAction(
-        "Confirm Update",
-        "Are you sure you want to update this tenant’s information?"
-      );
-      if (!ok) return;
+    submitEditBtn.addEventListener("click", async () => {
+      if (!confirm("Update this tenant?")) return;
 
-      await supabase.from("tenants")
-        .update({
-          tenant_name: $("editTenantName").value.trim(),
-          monthly_rent: Number($("editMonthlyRent").value),
-          rent_due_day: Number($("editRentDueDay").value),
-          utilities: getChecked("editUtilities")
-        })
-        .eq("id", $("editTenantId").value);
+      const id = $("editTenantId").value;
+
+      const payload = {
+        tenant_name: $("editTenantName").value.trim(),
+        monthly_rent: Number($("editMonthlyRent").value),
+        rent_due_day: Number($("editRentDueDay").value),
+        utilities: getChecked("editUtilities")
+      };
+
+      const { error } = await supabase
+        .from("tenants")
+        .update(payload)
+        .eq("id", id);
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
 
       closeModal(editModal);
       loadTenants();
-    };
+    });
   }
 
+  /* =========================
+     INIT
+  ========================= */
   loadTenants();
-});
+
