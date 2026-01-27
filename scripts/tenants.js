@@ -1,145 +1,178 @@
 import { supabase } from "./supabase.js";
 
 /* =========================
-   SAFE ELEMENT GETTERS
+   DOM READY
 ========================= */
-const $ = id => document.getElementById(id);
+document.addEventListener("DOMContentLoaded", () => {
 
-/* TABLE */
-const tenantTableBody = $("tenantTableBody");
+  /* =========================
+     ELEMENT SHORTCUT
+  ========================= */
+  const $ = id => document.getElementById(id);
 
-/* MODALS */
-const addModal = $("addModal");
-const editModal = $("editModal");
+  /* =========================
+     CORE ELEMENTS
+  ========================= */
+  const tenantTableBody = $("tenantTableBody");
 
-/* ADD FORM */
-const openAddBtn = $("openAddModal");
-const submitAddBtn = $("submitAdd");
+  const openAddBtn = $("openAddModal");
+  const addModal = $("addModal");
+  const editModal = $("editModal");
 
-/* EDIT FORM */
-const submitEditBtn = $("submitEdit");
+  const submitAddBtn = $("submitAdd");
+  const submitEditBtn = $("submitEdit");
 
-/* =========================
-   HELPERS
-========================= */
-function getChecked(groupId) {
-  const group = $(groupId);
-  if (!group) return [];
-  return Array.from(group.querySelectorAll("input:checked")).map(cb => cb.value);
-}
-
-function closeModal(modal) {
-  if (modal) modal.style.display = "none";
-}
-
-function openModal(modal) {
-  if (modal) modal.style.display = "flex";
-}
-
-/* =========================
-   LOAD TENANTS
-========================= */
-async function loadTenants() {
-  if (!tenantTableBody) return;
-
-  const { data, error } = await supabase
-    .from("tenants")
-    .select("id, tenant_name, monthly_rent, rent_due_day, utilities")
-    .order("created_at", { ascending: true });
-
-  if (error) {
-    console.error("Load tenants failed:", error.message);
+  /* =========================
+     SAFETY CHECKS
+  ========================= */
+  if (!tenantTableBody) {
+    console.error("tenantTableBody not found");
     return;
   }
 
-  tenantTableBody.innerHTML = "";
-
-  if (!data || data.length === 0) {
-    tenantTableBody.innerHTML =
-      `<tr><td colspan="5">No tenants yet</td></tr>`;
-    return;
+  /* =========================
+     UTILITIES
+  ========================= */
+  function getChecked(containerId) {
+    const container = $(containerId);
+    if (!container) return [];
+    return Array.from(container.querySelectorAll("input:checked"))
+      .map(cb => cb.value);
   }
 
-  data.forEach(t => {
-    const tr = document.createElement("tr");
+  function openModal(modal) {
+    if (modal) modal.style.display = "flex";
+  }
 
-    tr.innerHTML = `
-      <td>${t.tenant_name}</td>
-      <td>₱${Number(t.monthly_rent).toFixed(2)}</td>
-      <td>${t.rent_due_day}</td>
-      <td>${(t.utilities || []).join(", ") || "—"}</td>
-      <td>
-        <button class="secondary" data-id="${t.id}">Edit</button>
-      </td>
-    `;
+  function closeModal(modal) {
+    if (modal) modal.style.display = "none";
+  }
 
-    tr.querySelector("button").addEventListener("click", () => openEdit(t));
-    tenantTableBody.appendChild(tr);
-  });
-}
+  /* =========================
+     LOAD TENANTS
+  ========================= */
+  async function loadTenants() {
+    const { data, error } = await supabase
+      .from("tenants")
+      .select("id, tenant_name, monthly_rent, rent_due_day, utilities")
+      .order("created_at", { ascending: true });
 
-/* =========================
-   ADD TENANT
-========================= */
-if (openAddBtn && addModal) {
-  openAddBtn.addEventListener("click", () => openModal(addModal));
-}
+    if (error) {
+      console.error("Failed to load tenants:", error.message);
+      return;
+    }
 
-if (submitAddBtn) {
-  submitAddBtn.addEventListener("click", async () => {
-    if (!confirm("Add this tenant?")) return;
+    tenantTableBody.innerHTML = "";
 
-    await supabase.from("tenants").insert({
-      tenant_name: $("addTenantName").value,
-      monthly_rent: $("addMonthlyRent").value,
-      rent_due_day: $("addRentDueDay").value,
-      utilities: getChecked("addUtilities")
+    if (!data || data.length === 0) {
+      tenantTableBody.innerHTML =
+        `<tr><td colspan="5">No tenants yet</td></tr>`;
+      return;
+    }
+
+    data.forEach(t => {
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${t.tenant_name}</td>
+        <td>₱${Number(t.monthly_rent).toFixed(2)}</td>
+        <td>${t.rent_due_day}</td>
+        <td>${(t.utilities && t.utilities.length) ? t.utilities.join(", ") : "—"}</td>
+        <td>
+          <button class="secondary">Edit</button>
+        </td>
+      `;
+
+      tr.querySelector("button").addEventListener("click", () => {
+        openEditModal(t);
+      });
+
+      tenantTableBody.appendChild(tr);
     });
+  }
 
-    closeModal(addModal);
-    loadTenants();
-  });
-}
+  /* =========================
+     ADD TENANT
+  ========================= */
+  if (openAddBtn && addModal) {
+    openAddBtn.addEventListener("click", () => {
+      openModal(addModal);
+    });
+  }
 
-/* =========================
-   EDIT TENANT
-========================= */
-function openEdit(t) {
-  if (!editModal) return;
+  if (submitAddBtn) {
+    submitAddBtn.addEventListener("click", async () => {
+      if (!confirm("Add this tenant?")) return;
 
-  openModal(editModal);
-  $("editTenantId").value = t.id;
-  $("editTenantName").value = t.tenant_name;
-  $("editMonthlyRent").value = t.monthly_rent;
-  $("editRentDueDay").value = t.rent_due_day;
+      const payload = {
+        tenant_name: $("addTenantName").value.trim(),
+        monthly_rent: Number($("addMonthlyRent").value),
+        rent_due_day: Number($("addRentDueDay").value),
+        utilities: getChecked("addUtilities")
+      };
 
-  $("editUtilities")
-    .querySelectorAll("input")
-    .forEach(cb => {
+      const { error } = await supabase.from("tenants").insert(payload);
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      closeModal(addModal);
+      loadTenants();
+    });
+  }
+
+  /* =========================
+     EDIT TENANT
+  ========================= */
+  function openEditModal(t) {
+    if (!editModal) return;
+
+    $("editTenantId").value = t.id;
+    $("editTenantName").value = t.tenant_name;
+    $("editMonthlyRent").value = t.monthly_rent;
+    $("editRentDueDay").value = t.rent_due_day;
+
+    const utilitiesContainer = $("editUtilities");
+    utilitiesContainer.querySelectorAll("input").forEach(cb => {
       cb.checked = (t.utilities || []).includes(cb.value);
     });
-}
 
-if (submitEditBtn) {
-  submitEditBtn.addEventListener("click", async () => {
-    if (!confirm("Update this tenant?")) return;
+    openModal(editModal);
+  }
 
-    await supabase
-      .from("tenants")
-      .update({
-        tenant_name: $("editTenantName").value,
-        monthly_rent: $("editMonthlyRent").value,
-        rent_due_day: $("editRentDueDay").value,
+  if (submitEditBtn) {
+    submitEditBtn.addEventListener("click", async () => {
+      if (!confirm("Update this tenant?")) return;
+
+      const id = $("editTenantId").value;
+
+      const payload = {
+        tenant_name: $("editTenantName").value.trim(),
+        monthly_rent: Number($("editMonthlyRent").value),
+        rent_due_day: Number($("editRentDueDay").value),
         utilities: getChecked("editUtilities")
-      })
-      .eq("id", $("editTenantId").value);
+      };
 
-    closeModal(editModal);
-    loadTenants();
-  });
-}
+      const { error } = await supabase
+        .from("tenants")
+        .update(payload)
+        .eq("id", id);
 
-/* =========================
-   INIT
-========================= */
-loadTenants();
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      closeModal(editModal);
+      loadTenants();
+    });
+  }
+
+  /* =========================
+     INIT
+  ========================= */
+  loadTenants();
+
+});
