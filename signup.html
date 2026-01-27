@@ -20,9 +20,6 @@
       color: #000;
     }
 
-    /* =========================
-       CARD
-    ========================= */
     .card {
       width: 100%;
       max-width: 420px;
@@ -34,9 +31,6 @@
       box-shadow: 0 20px 40px rgba(0,0,0,0.25);
     }
 
-    /* =========================
-       HEADINGS (WITH GLOW)
-    ========================= */
     h1 {
       font-size: 1.6rem;
       margin-bottom: 6px;
@@ -53,9 +47,6 @@
       text-shadow: 0 0 6px rgba(255,255,255,0.85);
     }
 
-    /* =========================
-       FIELDS
-    ========================= */
     .field {
       position: relative;
       margin-bottom: 20px;
@@ -64,7 +55,7 @@
     .field input,
     .field select {
       width: 100%;
-      padding: 14px 44px 14px 12px;
+      padding: 14px 12px;
       font-size: 0.95rem;
       border-radius: 10px;
       border: 1px solid rgba(255,255,255,0.6);
@@ -73,70 +64,23 @@
       outline: none;
     }
 
-    .field select {
-      padding-right: 12px;
+    .field-label {
+      font-size: 0.8rem;
+      margin-bottom: 6px;
+      font-weight: 600;
     }
 
-    .field input::placeholder {
-      color: transparent;
-    }
-
-    .field label {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 0.9rem;
-      pointer-events: none;
-      color: #000;
-      transition: all 0.25s ease;
-    }
-
-    .field input:focus + label,
-    .field input:not(:placeholder-shown) + label {
-      top: -8px;
-      font-size: 0.75rem;
-      background: rgba(143, 98, 72, 0.85);
-      padding: 2px 6px;
-      border-radius: 6px;
-    }
-
-    /* =========================
-       PASSWORD EYE
-    ========================= */
-    .eye {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      font-size: 1rem;
-      opacity: 0.85;
-      user-select: none;
-    }
-
-    /* =========================
-       CHECKBOX ROWS
-    ========================= */
     .checkbox-row {
       font-size: 0.85rem;
       margin-bottom: 12px;
+      cursor: pointer;
     }
 
     .checkbox-row input {
       margin-right: 6px;
-    }
-
-    .checkbox-row a {
-      color: #000;
-      text-decoration: underline;
-      font-weight: 600;
       cursor: pointer;
     }
 
-    /* =========================
-       BUTTON (OPTION B ANIMATION)
-    ========================= */
     button {
       width: 100%;
       padding: 12px;
@@ -197,9 +141,6 @@
       75% { content:"..."; }
     }
 
-    /* =========================
-       FOOTER
-    ========================= */
     .footer {
       margin-top: 28px;
       font-size: 0.85rem;
@@ -207,15 +148,7 @@
       font-style: italic;
     }
 
-    .footer a {
-      color: #000;
-      text-decoration: underline;
-      font-weight: 600;
-    }
-
-    /* =========================
-       MODAL
-    ========================= */
+    /* MODAL */
     .modal {
       display: none;
       position: fixed;
@@ -258,43 +191,52 @@
   <!-- EMAIL -->
   <div class="field">
     <input id="email" type="email" placeholder="Email">
-    <label>Email</label>
   </div>
 
   <!-- PASSWORD -->
   <div class="field">
     <input id="password" type="password" placeholder="Password">
-    <label>Password</label>
-    <span class="eye" id="togglePassword">👁</span>
   </div>
 
   <!-- COUNTRY -->
   <div class="field">
+    <div class="field-label">Country</div>
     <select id="country">
       <option value="">Select country</option>
-      <option>Philippines</option>
-      <option>United States</option>
-      <option>Canada</option>
-      <option>United Kingdom</option>
+      <option>Afghanistan</option>
       <option>Australia</option>
-      <option>Singapore</option>
-      <option>Japan</option>
-      <option>Germany</option>
+      <option>Brazil</option>
+      <option>Canada</option>
+      <option>China</option>
       <option>France</option>
+      <option>Germany</option>
       <option>India</option>
+      <option>Indonesia</option>
+      <option>Japan</option>
+      <option>Malaysia</option>
+      <option>New Zealand</option>
+      <option>Philippines</option>
+      <option>Singapore</option>
+      <option>South Korea</option>
+      <option>Spain</option>
+      <option>Thailand</option>
+      <option>United Arab Emirates</option>
+      <option>United Kingdom</option>
+      <option>United States</option>
+      <!-- Can be expanded later -->
     </select>
   </div>
 
   <!-- TERMS -->
-  <div class="checkbox-row">
+  <div class="checkbox-row" id="termsRow">
     <input type="checkbox" id="terms" disabled>
-    I accept the <a id="openTerms">Terms and Conditions</a>
+    I accept the Terms and Conditions
   </div>
 
   <!-- PRIVACY -->
-  <div class="checkbox-row">
+  <div class="checkbox-row" id="privacyRow">
     <input type="checkbox" id="privacy" disabled>
-    I accept the <a id="openPrivacy">Data Privacy Policy</a>
+    I accept the Data Privacy Policy
   </div>
 
   <!-- CREATE ACCOUNT -->
@@ -341,73 +283,49 @@
   </div>
 </div>
 
-<!-- EXISTING SIGNUP LOGIC -->
 <script type="module" src="./scripts/signup.js"></script>
 
 <script>
-  /* =========================
-     BUTTON ANIMATION
-     (UI ONLY)
-  ========================= */
+  /* BUTTON ANIMATION */
   const signupBtn = document.getElementById("signupBtn");
   signupBtn.addEventListener("click", () => {
     signupBtn.classList.add("loading");
     signupBtn.disabled = true;
   });
 
-  /* =========================
-     PASSWORD TOGGLE
-  ========================= */
-  const toggle = document.getElementById("togglePassword");
-  const password = document.getElementById("password");
-  toggle.addEventListener("click", () => {
-    password.type = password.type === "password" ? "text" : "password";
-  });
+  /* MODAL TRIGGERS */
+  document.getElementById("termsRow").onclick = () => {
+    document.getElementById("termsModal").style.display = "flex";
+  };
 
-  /* =========================
-     MODAL SETUP (FUTURE-READY)
-  ========================= */
-  function setupModal(openBtn, modal, body, agreeBtn, checkbox) {
-    openBtn.onclick = () => modal.style.display = "flex";
+  document.getElementById("privacyRow").onclick = () => {
+    document.getElementById("privacyModal").style.display = "flex";
+  };
 
-    body.onscroll = () => {
-      if (body.scrollTop + body.clientHeight >= body.scrollHeight - 10) {
-        agreeBtn.disabled = false;
-      }
-    };
+  /* SCROLL ENFORCEMENT */
+  document.getElementById("termsBody").onscroll = () => {
+    const body = document.getElementById("termsBody");
+    if (body.scrollTop + body.clientHeight >= body.scrollHeight - 10) {
+      document.getElementById("agreeTerms").disabled = false;
+    }
+  };
 
-    agreeBtn.onclick = () => {
-      checkbox.checked = true;
-      checkbox.disabled = false;
+  document.getElementById("privacyBody").onscroll = () => {
+    const body = document.getElementById("privacyBody");
+    if (body.scrollTop + body.clientHeight >= body.scrollHeight - 10) {
+      document.getElementById("agreePrivacy").disabled = false;
+    }
+  };
 
-      /* FUTURE BACKEND HOOK
-         recordAcceptance({
-           type: 'terms',
-           version: 'v1.0',
-           acceptedAt: new Date().toISOString(),
-           source: window.location.href
-         });
-      */
+  document.getElementById("agreeTerms").onclick = () => {
+    document.getElementById("terms").checked = true;
+    document.getElementById("termsModal").style.display = "none";
+  };
 
-      modal.style.display = "none";
-    };
-  }
-
-  setupModal(
-    document.getElementById("openTerms"),
-    document.getElementById("termsModal"),
-    document.getElementById("termsBody"),
-    document.getElementById("agreeTerms"),
-    document.getElementById("terms")
-  );
-
-  setupModal(
-    document.getElementById("openPrivacy"),
-    document.getElementById("privacyModal"),
-    document.getElementById("privacyBody"),
-    document.getElementById("agreePrivacy"),
-    document.getElementById("privacy")
-  );
+  document.getElementById("agreePrivacy").onclick = () => {
+    document.getElementById("privacy").checked = true;
+    document.getElementById("privacyModal").style.display = "none";
+  };
 
   function closeTerms() {
     document.getElementById("termsModal").style.display = "none";
