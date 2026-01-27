@@ -13,6 +13,21 @@ const tenantTableBody = document.getElementById("tenantTableBody");
 const logoutBtn = document.getElementById("logoutBtn");
 
 /* =========================
+   UTILITIES HELPERS
+========================= */
+function getSelectedUtilities() {
+  return Array.from(
+    document.querySelectorAll(".checkbox-group input:checked")
+  ).map(cb => cb.value);
+}
+
+function clearUtilitiesSelection() {
+  document
+    .querySelectorAll(".checkbox-group input")
+    .forEach(cb => (cb.checked = false));
+}
+
+/* =========================
    LOAD TENANTS
 ========================= */
 async function loadTenants() {
@@ -21,7 +36,7 @@ async function loadTenants() {
 
   const { data, error } = await supabase
     .from("tenants")
-    .select("tenant_name, monthly_rent, rent_due_day")
+    .select("tenant_name, monthly_rent, rent_due_day, utilities")
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -34,19 +49,25 @@ async function loadTenants() {
   if (!data || data.length === 0) {
     tenantTableBody.innerHTML = `
       <tr>
-        <td colspan="3">N/A</td>
+        <td colspan="4">N/A</td>
       </tr>
     `;
     return;
   }
 
   data.forEach(tenant => {
+    const utilitiesText =
+      Array.isArray(tenant.utilities) && tenant.utilities.length
+        ? tenant.utilities.join(", ")
+        : "—";
+
     const row = document.createElement("tr");
 
     row.innerHTML = `
       <td>${tenant.tenant_name}</td>
-      <td>${tenant.monthly_rent}</td>
+      <td>₱${Number(tenant.monthly_rent).toFixed(2)}</td>
       <td>${tenant.rent_due_day}</td>
+      <td>${utilitiesText}</td>
     `;
 
     tenantTableBody.appendChild(row);
@@ -62,6 +83,7 @@ async function addTenant() {
   const tenantName = tenantNameInput.value.trim();
   const monthlyRent = parseFloat(monthlyRentInput.value);
   const rentDueDay = parseInt(rentDueDayInput.value, 10);
+  const utilities = getSelectedUtilities();
 
   if (!tenantName || isNaN(monthlyRent) || isNaN(rentDueDay)) {
     tenantMessage.textContent = "All fields are required.";
@@ -85,7 +107,8 @@ async function addTenant() {
       user_id: user.id,
       tenant_name: tenantName,
       monthly_rent: monthlyRent,
-      rent_due_day: rentDueDay
+      rent_due_day: rentDueDay,
+      utilities: utilities
     });
 
   if (error) {
@@ -98,6 +121,7 @@ async function addTenant() {
   tenantNameInput.value = "";
   monthlyRentInput.value = "";
   rentDueDayInput.value = "";
+  clearUtilitiesSelection();
 
   await loadTenants();
 }
