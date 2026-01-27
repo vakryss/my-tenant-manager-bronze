@@ -37,9 +37,7 @@
       overflow-x: hidden;
     }
 
-    /* ===============================
-       SIDEBAR (CONTENT-FIT WIDTH)
-    =============================== */
+    /* SIDEBAR (CONTENT-FIT WIDTH) */
     .sidebar {
       background: #AA7E63;
       color: #fff;
@@ -47,9 +45,7 @@
       display: none;
       flex-direction: column;
       justify-content: space-between;
-
-      width: max-content;     /* KEY FIX */
-      min-width: 0;
+      width: max-content;
       flex-shrink: 0;
     }
 
@@ -80,9 +76,7 @@
       font-weight: 600;
     }
 
-    /* ===============================
-       MOBILE HEADER
-    =============================== */
+    /* MOBILE HEADER */
     .mobile-header {
       display: flex;
       justify-content: space-between;
@@ -97,11 +91,10 @@
       border: none;
       color: #fff;
       font-size: 1rem;
+      cursor: pointer;
     }
 
-    /* ===============================
-       MOBILE MENU
-    =============================== */
+    /* MOBILE MENU */
     .mobile-menu {
       position: fixed;
       inset: 0;
@@ -117,14 +110,11 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-
       width: max-content;
       max-width: 90vw;
     }
 
-    /* ===============================
-       CONTENT
-    =============================== */
+    /* CONTENT */
     .content {
       flex: 1;
       padding: 16px;
@@ -222,7 +212,7 @@
 
 <div class="app">
 
-  <!-- SIDEBAR -->
+  <!-- DESKTOP SIDEBAR -->
   <aside class="sidebar">
     <div class="nav-group">
       <a class="nav-link active" href="/index.html">Dashboard</a>
