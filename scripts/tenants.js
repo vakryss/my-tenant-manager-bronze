@@ -100,11 +100,21 @@ document.addEventListener("DOMContentLoaded", () => {
   ========================= */
   if (openAddBtn && addModal) {
     openAddBtn.addEventListener("click", () => {
+       
+    // 🔧 RESET SAVE BUTTON
+    submitAddBtn.disabled = false;
+    submitAddBtn.textContent = "Save";
 
-      // 🔧 RESET SAVE BUTTON STATE (FIX)
-      submitAddBtn.disabled = false;
-      submitAddBtn.textContent = "Save";
+    // 🔧 RESET FORM FIELDS
+    $("addTenantName").value = "";
+    $("addMonthlyRent").value = "";
+    $("addRentDueDay").value = "";
 
+    // 🔧 RESET UTILITIES CHECKBOXES
+    document
+      .querySelectorAll("#addUtilities input[type='checkbox']")
+      .forEach(cb => cb.checked = false);
+       
       openModal(addModal);
     });
   }
