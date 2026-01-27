@@ -65,24 +65,26 @@ document.addEventListener("DOMContentLoaded", () => {
     tenantTableBody.innerHTML = "";
 
     if (!data || data.length === 0) {
-      tenantTableBody.innerHTML =
-        <tr><td colspan="5">No tenants yet</td></tr>;
-      return;
-    }
-
+      tenantTableBody.innerHTML = `
+  <tr>
+    <td colspan="5">No tenants yet</td>
+  </tr>
+`;
+       
     data.forEach(t => {
       const tr = document.createElement("tr");
 
-      tr.innerHTML =
-        <td>${t.tenant_name}</td>
-        <td>₱${Number(t.monthly_rent).toFixed(2)}</td>
-        <td>${t.rent_due_day}</td>
-        <td>${(t.utilities && t.utilities.length)
-          ? t.utilities.join(", ")
-          : "—"}</td>
-        <td>
-          <button class="secondary">Edit</button>
-        </td>;
+      tr.innerHTML = `
+  <td>${t.tenant_name}</td>
+  <td>₱${Number(t.monthly_rent).toFixed(2)}</td>
+  <td>${t.rent_due_day}</td>
+  <td>${(t.utilities && t.utilities.length)
+    ? t.utilities.join(", ")
+    : "—"}</td>
+  <td>
+    <button class="secondary">Edit</button>
+  </td>
+`;
 
       tr.querySelector("button").addEventListener("click", () => {
         openEditModal(t);
