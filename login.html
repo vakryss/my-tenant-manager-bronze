@@ -20,9 +20,6 @@
       color: #000;
     }
 
-    /* =========================
-       LOGIN CARD
-    ========================= */
     .card {
       width: 100%;
       max-width: 380px;
@@ -34,9 +31,6 @@
       box-shadow: 0 20px 40px rgba(0,0,0,0.25);
     }
 
-    /* =========================
-       HEADINGS (WITH GLOW)
-    ========================= */
     h1 {
       font-size: 1.6rem;
       margin-bottom: 6px;
@@ -53,9 +47,6 @@
       text-shadow: 0 0 6px rgba(255,255,255,0.85);
     }
 
-    /* =========================
-       FLOATING INPUTS (NO GLOW)
-    ========================= */
     .field {
       position: relative;
       margin-bottom: 20px;
@@ -83,7 +74,7 @@
       transform: translateY(-50%);
       font-size: 0.9rem;
       pointer-events: none;
-      color: #000; /* NO GLOW */
+      color: #000;
       transition: all 0.25s ease;
     }
 
@@ -96,9 +87,6 @@
       border-radius: 6px;
     }
 
-    /* =========================
-       PASSWORD EYE ICON
-    ========================= */
     .eye {
       position: absolute;
       right: 12px;
@@ -111,7 +99,7 @@
     }
 
     /* =========================
-       LOGIN BUTTON
+       BUTTON + ANIMATION
     ========================= */
     button {
       width: 100%;
@@ -125,15 +113,54 @@
       letter-spacing: 0.5px;
       cursor: pointer;
       margin-top: 10px;
+      position: relative;
+      overflow: hidden;
     }
 
-    button:hover {
-      background: #f4f4f4;
+    button:disabled {
+      cursor: default;
+      opacity: 0.85;
     }
 
-    /* =========================
-       MESSAGE (HIDDEN)
-    ========================= */
+    .btn-text {
+      display: inline-flex;
+      gap: 1px;
+    }
+
+    .btn-text span {
+      display: inline-block;
+      animation: none;
+    }
+
+    .loading .btn-text span {
+      animation: rotateChar 1.2s infinite;
+    }
+
+    .loading .btn-text span:nth-child(1) { animation-delay: 0s; }
+    .loading .btn-text span:nth-child(2) { animation-delay: 0.1s; }
+    .loading .btn-text span:nth-child(3) { animation-delay: 0.2s; }
+    .loading .btn-text span:nth-child(4) { animation-delay: 0.3s; }
+    .loading .btn-text span:nth-child(5) { animation-delay: 0.4s; }
+
+    @keyframes rotateChar {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(5deg); }
+      50% { transform: rotate(0deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .dots::after {
+      content: "";
+      animation: dots 1.4s infinite steps(4);
+    }
+
+    @keyframes dots {
+      0% { content: ""; }
+      25% { content: "."; }
+      50% { content: ".."; }
+      75% { content: "..."; }
+    }
+
     .message {
       margin-top: 14px;
       font-size: 0.85rem;
@@ -141,19 +168,16 @@
       color: #000;
     }
 
-    /* =========================
-       FOOTER (NO GLOW, ITALIC)
-    ========================= */
     .footer {
-      margin-top: 28px; /* pushed lower */
+      margin-top: 28px;
       font-size: 0.85rem;
       text-align: center;
-      color: #000000;
+      color: #000;
       font-style: italic;
     }
 
     .footer a {
-      color: #000000;
+      color: #000;
       text-decoration: underline;
       font-weight: 600;
     }
@@ -166,20 +190,23 @@
     <h1>Welcome</h1>
     <div class="subtitle">Login to My Tenant Manager</div>
 
-    <!-- EMAIL -->
     <div class="field">
       <input id="email" type="email" placeholder="Email">
       <label>Email</label>
     </div>
 
-    <!-- PASSWORD -->
     <div class="field">
       <input id="password" type="password" placeholder="Password">
       <label>Password</label>
       <span class="eye" id="togglePassword">👁</span>
     </div>
 
-    <button id="loginBtn">LOGIN</button>
+    <button id="loginBtn">
+      <span class="btn-text">
+        <span>L</span><span>O</span><span>G</span><span>I</span><span>N</span>
+      </span>
+      <span class="dots"></span>
+    </button>
 
     <div id="message" class="message"></div>
 
@@ -192,11 +219,18 @@
     </div>
   </div>
 
-  <!-- LOGIN LOGIC (UNCHANGED) -->
+  <!-- EXISTING LOGIN LOGIC -->
   <script type="module" src="./scripts/login.js"></script>
 
-  <!-- EYE TOGGLE + MESSAGE VISIBILITY -->
+  <!-- UI-ONLY ANIMATION CONTROL -->
   <script>
+    const loginBtn = document.getElementById("loginBtn");
+
+    loginBtn.addEventListener("click", () => {
+      loginBtn.classList.add("loading");
+      loginBtn.disabled = true;
+    });
+
     const toggle = document.getElementById("togglePassword");
     const password = document.getElementById("password");
 
