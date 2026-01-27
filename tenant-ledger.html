@@ -3,11 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <title>Tenant Ledger – My Tenant Manager</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- =================================
+       HARD BLOCK RENDER (NO FLASH)
+  ================================= -->
   <style>
-    html { visibility: hidden; }
+    html {
+      visibility: hidden;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 16px;
+      border-radius: 6px;
+    }
+
+    h1, p {
+      margin-top: 0;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+      font-size: 14px;
+      word-break: break-word;
+    }
+
+    thead {
+      background: #efefef;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .button-row button {
+      flex: 1;
+      min-width: 160px;
+    }
+
+    /* =========================
+       MOBILE TABLE STACK
+    ========================= */
+    @media (max-width: 700px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tr {
+        margin-bottom: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 8px;
+        background: #fafafa;
+      }
+
+      td {
+        border: none;
+        padding: 4px 0;
+      }
+
+      td::before {
+        font-weight: bold;
+        display: block;
+      }
+
+      td:nth-child(1)::before { content: "Date"; }
+      td:nth-child(2)::before { content: "Category"; }
+      td:nth-child(3)::before { content: "Amount"; }
+      td:nth-child(4)::before { content: "Running Balance"; }
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 24px;
+      }
+
+      select, button {
+        font-size: 15px;
+      }
+    }
   </style>
 
+  <!-- =================================
+       AUTH GATE
+  ================================= -->
   <script type="module">
     import { supabase } from "./scripts/supabase.js";
     const { data: { session } } = await supabase.auth.getSession();
@@ -21,44 +148,53 @@
 
 <body>
 
-<h1>Tenant Ledger</h1>
-<p>Bronze Tier</p>
+<div class="container">
 
-<hr>
+  <h1>Tenant Ledger</h1>
+  <p>Bronze Tier</p>
 
-<label>Select Tenant</label><br>
-<select id="tenantSelect">
-  <option value="">N/A</option>
-</select>
+  <hr>
 
-<hr>
+  <div class="section">
+    <label for="tenantSelect">Select Tenant</label>
+    <select id="tenantSelect">
+      <option value="">N/A</option>
+    </select>
+  </div>
 
-<table border="1" cellpadding="6">
-  <thead>
-    <tr>
-      <th>Date</th>
-      <th>Category</th>
-      <th>Amount</th>
-      <th>Running Balance</th>
-    </tr>
-  </thead>
-  <tbody id="ledgerBody">
-    <tr><td colspan="4">N/A</td></tr>
-  </tbody>
-</table>
+  <hr>
 
-<hr>
+  <div class="section">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Running Balance</th>
+        </tr>
+      </thead>
+      <tbody id="ledgerBody">
+        <tr>
+          <td colspan="4">No records yet</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-<button onclick="window.location.href='/ledger.html'">
-  Back to General Ledger
-</button>
+  <hr>
 
-<button onclick="window.location.href='/index.html'">
-  Back to Dashboard
-</button>
+  <div class="button-row">
+    <button onclick="window.location.href='/ledger.html'">General Ledger</button>
+    <button onclick="window.location.href='/index.html'">Dashboard</button>
+    <button id="logoutBtn">Logout</button>
+  </div>
 
-<button id="logoutBtn">Logout</button>
+</div>
 
+<!-- =================================
+     PAGE LOGIC
+================================= -->
 <script type="module" src="./scripts/tenant-ledger.js"></script>
 
 </body>
