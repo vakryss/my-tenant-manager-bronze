@@ -2,94 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>My Tenant Manager – Bronze</title>
+  <title>Dashboard – My Tenant Manager</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- =================================
+  <!-- ===============================
        HARD BLOCK RENDER (NO FLASH)
-  ================================= -->
+  =============================== -->
   <style>
     html {
       visibility: hidden;
     }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      padding: 16px;
-      font-family: Arial, sans-serif;
-      background: #f7f7f7;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: #ffffff;
-      padding: 16px;
-      border-radius: 6px;
-    }
-
-    h1, h2, h3, p {
-      margin-top: 0;
-    }
-
-    label {
-      font-weight: bold;
-    }
-
-    input, button {
-      width: 100%;
-      padding: 10px;
-      font-size: 14px;
-      margin-top: 4px;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .button-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .button-row button {
-      flex: 1;
-      min-width: 160px;
-    }
-
-    .section {
-      margin-bottom: 20px;
-    }
-
-    hr {
-      margin: 20px 0;
-    }
-
-    @media (min-width: 768px) {
-      body {
-        padding: 24px;
-      }
-
-      input, button {
-        font-size: 15px;
-      }
-    }
   </style>
 
-  <!-- =================================
-       AUTH GATE (RUNS BEFORE PAINT)
-  ================================= -->
+  <!-- ===============================
+       AUTH GATE (BEFORE PAINT)
+  =============================== -->
   <script type="module">
     import { supabase } from "./scripts/supabase.js";
 
@@ -101,139 +29,269 @@
       document.documentElement.style.visibility = "visible";
     }
   </script>
+
+  <!-- ===============================
+       BASE UI STYLES (MOBILE-FIRST)
+  =============================== -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f8f9fb;
+      color: #1a1a1a;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 4px;
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      margin-top: 24px;
+      margin-bottom: 12px;
+    }
+
+    p {
+      margin: 4px 0 12px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .field {
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+    }
+
+    .field strong {
+      display: inline-block;
+      width: 110px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      font-size: 0.95rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: #2563eb;
+      color: #ffffff;
+    }
+
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    button.danger {
+      background: #dc2626;
+    }
+
+    .nav-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .message {
+      font-size: 0.85rem;
+      margin-top: 8px;
+    }
+
+    /* ===============================
+       TABLET
+    =============================== */
+    @media (min-width: 600px) {
+      .nav-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* ===============================
+       DESKTOP
+    =============================== */
+    @media (min-width: 900px) {
+      .nav-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="container">
+  <div class="container">
 
-  <h1>My Tenant Manager</h1>
-  <p>Bronze Tier</p>
+    <!-- ===============================
+         HEADER
+    =============================== -->
+    <h1>My Tenant Manager</h1>
+    <p>Bronze Tier Dashboard</p>
 
-  <hr>
+    <!-- ===============================
+         PROFILE CARD
+    =============================== -->
+    <div class="card">
+      <h2>Landlord Profile</h2>
 
-  <!-- =================================
-       LANDLORD PROFILE (READ-ONLY)
-  ================================= -->
-  <div class="section">
-    <h2>Landlord Profile</h2>
+      <div class="field">
+        <strong>Email:</strong>
+        <span id="profileEmail">N/A</span>
+      </div>
 
-    <p><strong>Email:</strong> <span id="profileEmail">N/A</span></p>
-    <p><strong>Country:</strong> <span id="profileCountry">N/A</span></p>
-    <p><strong>Currency:</strong> <span id="profileCurrency">N/A</span></p>
-    <p><strong>Full Name:</strong> <span id="profileFullName">N/A</span></p>
+      <div class="field">
+        <strong>Country:</strong>
+        <span id="profileCountry">N/A</span>
+      </div>
+
+      <div class="field">
+        <strong>Currency:</strong>
+        <span id="profileCurrency">N/A</span>
+      </div>
+
+      <div class="field">
+        <strong>Full Name:</strong>
+        <span id="profileFullName">N/A</span>
+      </div>
+    </div>
+
+    <!-- ===============================
+         EDIT PROFILE
+    =============================== -->
+    <div class="card">
+      <h2>Edit Profile</h2>
+
+      <label for="fullNameInput">Full Name</label>
+      <input id="fullNameInput" type="text">
+
+      <button id="saveProfileBtn">Save Profile</button>
+      <div id="profileMessage" class="message">N/A</div>
+    </div>
+
+    <!-- ===============================
+         NAVIGATION
+    =============================== -->
+    <div class="card">
+      <h2>Manage</h2>
+
+      <div class="nav-grid">
+        <button onclick="location.href='/tenants.html'">Tenants</button>
+        <button onclick="location.href='/rent.html'">Rent</button>
+        <button onclick="location.href='/utilities.html'">Utilities</button>
+        <button onclick="location.href='/payments.html'">Payments</button>
+        <button onclick="location.href='/ledger.html'">General Ledger</button>
+        <button onclick="location.href='/tenant-ledger.html'">Tenant Ledger</button>
+      </div>
+    </div>
+
+    <!-- ===============================
+         SYSTEM ACTIONS
+    =============================== -->
+    <div class="card">
+      <button id="logoutBtn" class="danger">Logout</button>
+    </div>
+
   </div>
 
-  <hr>
+  <!-- ===============================
+       PAGE LOGIC
+  =============================== -->
+  <script type="module">
+    import { supabase } from "./scripts/supabase.js";
+    import { logout } from "./scripts/session.js";
 
-  <!-- =================================
-       LANDLORD PROFILE (EDITABLE)
-  ================================= -->
-  <div class="section">
-    <h3>Edit Profile</h3>
+    async function loadProfile() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    <label for="fullNameInput">Full Name</label>
-    <input id="fullNameInput" type="text">
+      const { data, error } = await supabase
+        .from("users_profile")
+        .select("email, country, currency_code, currency_symbol, full_name")
+        .eq("id", user.id)
+        .single();
 
-    <button id="saveProfileBtn">Save Profile</button>
-    <p id="profileMessage">N/A</p>
-  </div>
+      if (error) return;
 
-  <hr>
+      document.getElementById("profileEmail").textContent =
+        data.email || "N/A";
 
-  <!-- =================================
-       SUPABASE TEST
-  ================================= -->
-  <div class="section">
-    <button id="testBtn">Test Supabase Connection</button>
-    <p id="result">N/A</p>
-  </div>
+      document.getElementById("profileCountry").textContent =
+        data.country || "N/A";
 
-  <hr>
+      document.getElementById("profileCurrency").textContent =
+        `${data.currency_symbol} (${data.currency_code})`;
 
-  <!-- =================================
-       NAVIGATION & LOGOUT
-  ================================= -->
-  <div class="button-row">
-    <button onclick="window.location.href='/tenants.html'">Tenants</button>
-    <button onclick="window.location.href='/utilities.html'">Utilities</button>
-    <button onclick="window.location.href='/payments.html'">Payments</button>
-    <button onclick="window.location.href='/ledger.html'">Ledger</button>
-    <button id="logoutBtn">Logout</button>
-  </div>
+      document.getElementById("profileFullName").textContent =
+        data.full_name || "N/A";
 
-</div>
-
-<!-- =================================
-     PAGE LOGIC
-================================= -->
-<script type="module">
-  import { supabase } from "./scripts/supabase.js";
-  import { logout } from "./scripts/session.js";
-
-  async function loadProfile() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from("users_profile")
-      .select("email, country, currency_code, currency_symbol, full_name")
-      .eq("id", user.id)
-      .single();
-
-    if (error) {
-      console.error("Profile load error:", error.message);
-      return;
+      document.getElementById("fullNameInput").value =
+        data.full_name || "";
     }
 
-    document.getElementById("profileEmail").textContent = data.email || "N/A";
-    document.getElementById("profileCountry").textContent = data.country || "N/A";
-    document.getElementById("profileCurrency").textContent =
-      `${data.currency_symbol} (${data.currency_code})`;
-    document.getElementById("profileFullName").textContent =
-      data.full_name || "N/A";
+    async function updateProfile() {
+      const message = document.getElementById("profileMessage");
+      const fullName = document.getElementById("fullNameInput").value.trim();
 
-    document.getElementById("fullNameInput").value =
-      data.full_name || "";
-  }
+      message.textContent = "Saving...";
 
-  async function updateProfile() {
-    const message = document.getElementById("profileMessage");
-    const fullName = document.getElementById("fullNameInput").value.trim();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        message.textContent = "Not authenticated.";
+        return;
+      }
 
-    message.textContent = "Saving...";
+      const { error } = await supabase
+        .from("users_profile")
+        .update({ full_name: fullName || "N/A" })
+        .eq("id", user.id);
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      message.textContent = "Not authenticated.";
-      return;
+      if (error) {
+        message.textContent = error.message;
+        return;
+      }
+
+      message.textContent = "Profile updated.";
+      loadProfile();
     }
 
-    const { error } = await supabase
-      .from("users_profile")
-      .update({ full_name: fullName || "N/A" })
-      .eq("id", user.id);
+    document
+      .getElementById("saveProfileBtn")
+      .addEventListener("click", updateProfile);
 
-    if (error) {
-      message.textContent = error.message;
-      return;
-    }
+    document
+      .getElementById("logoutBtn")
+      .addEventListener("click", logout);
 
-    message.textContent = "Profile updated successfully.";
-    await loadProfile();
-  }
-
-  document.getElementById("testBtn").addEventListener("click", async () => {
-    const { error } = await supabase.auth.getSession();
-    document.getElementById("result").textContent =
-      error ? "Error: " + error.message : "Supabase connected successfully.";
-  });
-
-  document.getElementById("logoutBtn").addEventListener("click", logout);
-  document.getElementById("saveProfileBtn").addEventListener("click", updateProfile);
-
-  loadProfile();
-</script>
+    loadProfile();
+  </script>
 
 </body>
 </html>
