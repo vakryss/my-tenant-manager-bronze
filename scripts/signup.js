@@ -29,22 +29,26 @@ if (togglePassword && passwordInput) {
 ========================= */
 if (signupBtn) {
   signupBtn.addEventListener("click", async () => {
-    message.textContent = "Processing...";
+    message.textContent = "Creating account...";
+    signupBtn.disabled = true;
 
     const email = emailInput.value.trim();
     const password = passwordInput.value;
     const country = countryInput.value.trim();
-    const termsAccepted = termsCheckbox.checked;
-    const privacyAccepted = privacyCheckbox.checked;
+
+    const termsAccepted = termsCheckbox?.checked;
+    const privacyAccepted = privacyCheckbox?.checked;
 
     /* ---------- BASIC VALIDATION ---------- */
     if (!email || !password || !country) {
       message.textContent = "All fields are required.";
+      signupBtn.disabled = false;
       return;
     }
 
     if (!termsAccepted || !privacyAccepted) {
-      message.textContent = "You must accept Terms and Privacy.";
+      message.textContent = "You must accept the Terms and Privacy Policy.";
+      signupBtn.disabled = false;
       return;
     }
 
@@ -56,10 +60,12 @@ if (signupBtn) {
           password
         });
 
-      if (authError) throw authError;
+      if (authError) {
+        throw authError;
+      }
 
-      if (!authData.user) {
-        throw new Error("User creation failed.");
+      if (!authData || !authData.user) {
+        throw new Error("Account creation failed. Please try again.");
       }
 
       const userId = authData.user.id;
@@ -72,11 +78,13 @@ if (signupBtn) {
           email: email,
           full_name: "N/A",
           country: country,
-          currency_code: "PHP",     // temporary (Phase 1.3 will improve this)
+          currency_code: "PHP",
           currency_symbol: "₱"
         });
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        throw profileError;
+      }
 
       /* ---------- 3. INSERT LEGAL ACCEPTANCE ---------- */
       const { error: legalError } = await supabase
@@ -87,12 +95,24 @@ if (signupBtn) {
           privacy_accepted: true
         });
 
-      if (legalError) throw legalError;
+      if (legalError) {
+        throw legalError;
+      }
 
-      message.textContent = "Account created successfully.";
+      message.textContent =
+        "Account created successfully. You may now log in.";
+
+      /*
+        Do NOT auto-login yet.
+        This avoids confusion when email confirmation
+        is enabled later.
+      */
+      signupBtn.disabled = false;
 
     } catch (err) {
-      message.textContent = err.message || "Signup failed.";
+      message.textContent =
+        err?.message || "Signup failed. Please try again.";
+      signupBtn.disabled = false;
     }
   });
 }
