@@ -55,7 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
         data-tooltip-id="tooltip-${tenantId}"
         style="
           margin-left:6px;
-          font-style:italic;
           cursor:pointer;
           user-select:none;
         "
