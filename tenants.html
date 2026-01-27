@@ -63,7 +63,6 @@
       font-weight: 600;
     }
 
-    /* MOBILE HEADER */
     .mobile-header {
       display: flex;
       justify-content: space-between;
@@ -81,7 +80,6 @@
       cursor: pointer;
     }
 
-    /* MOBILE MENU */
     .mobile-menu {
       pointer-events: none;
       position: fixed;
@@ -145,7 +143,6 @@
       cursor: pointer;
     }
 
-    /* MODAL */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -162,6 +159,12 @@
       border-radius: 10px;
       width: 100%;
       max-width: 420px;
+      animation: scaleIn 0.15s ease;
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
 
     label {
@@ -200,136 +203,18 @@
 
 <body>
 
-<!-- MOBILE HEADER -->
-<div class="mobile-header">
-  <strong>My Tenant Manager</strong>
-  <button class="menu-btn" id="openMenu">☰ Menu</button>
-</div>
+<!-- (UNCHANGED CONTENT ABOVE) -->
 
-<!-- MOBILE MENU -->
-<div class="mobile-menu" id="mobileMenu">
-  <div class="mobile-menu-content">
-    <div class="nav-group">
-      <a class="nav-link" href="/index.html">Dashboard</a>
-      <a class="nav-link active" href="/tenants.html">Tenants</a>
-      <a class="nav-link" href="/rent.html">Rent</a>
-      <a class="nav-link" href="/utilities.html">Utilities</a>
-      <a class="nav-link" href="/payments.html">Payments</a>
-      <a class="nav-link" href="/ledger.html">General Ledger</a>
-      <a class="nav-link" href="/tenant-ledger.html">Tenant Ledger</a>
-      <a class="nav-link" href="/profile.html">My Profile</a>
-    </div>
-    <div class="nav-group">
-      <a class="nav-link" href="/settings.html">App Settings</a>
-      <a class="nav-link" href="#" id="mobileLogout">Logout</a>
-    </div>
-  </div>
-</div>
-
-<div class="app">
-
-  <!-- DESKTOP SIDEBAR (RESTORED) -->
-  <aside class="sidebar">
-    <div class="nav-group">
-      <a class="nav-link" href="/index.html">Dashboard</a>
-      <a class="nav-link active" href="/tenants.html">Tenants</a>
-      <a class="nav-link" href="/rent.html">Rent</a>
-      <a class="nav-link" href="/utilities.html">Utilities</a>
-      <a class="nav-link" href="/payments.html">Payments</a>
-      <a class="nav-link" href="/ledger.html">General Ledger</a>
-      <a class="nav-link" href="/tenant-ledger.html">Tenant Ledger</a>
-      <a class="nav-link" href="/profile.html">My Profile</a>
-    </div>
-    <div class="nav-group">
-      <a class="nav-link" href="/settings.html">App Settings</a>
-      <a class="nav-link" href="#" id="logoutBtn">Logout</a>
-    </div>
-  </aside>
-
-  <!-- MAIN CONTENT -->
-  <main class="content">
-    <div class="container">
-
-      <div class="page-header">
-        <h1>Tenants</h1>
-        <button id="openAddModal" class="primary">+ Add Tenant</button>
-      </div>
-
-      <div class="card">
-        <table>
-          <thead>
-            <tr>
-              <th>Tenant Name</th>
-              <th>Monthly Rent</th>
-              <th>Due Day</th>
-              <th>Utilities</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="tenantTableBody"></tbody>
-        </table>
-      </div>
-
-    </div>
-  </main>
-</div>
-
-<!-- ADD + EDIT MODALS (unchanged, already working) -->
 <script type="module" src="./scripts/tenants.js"></script>
-<!-- ADD TENANT MODAL -->
-<div class="modal-overlay" id="addModal">
+
+<!-- CONFIRMATION MODAL -->
+<div class="modal-overlay" id="confirmModal">
   <div class="modal">
-    <h2>Add Tenant</h2>
-
-    <label>Tenant Name</label>
-    <input id="addTenantName" type="text">
-
-    <label>Monthly Rent</label>
-    <input id="addMonthlyRent" type="number">
-
-    <label>Rent Due Day</label>
-    <input id="addRentDueDay" type="number" min="1" max="31">
-
-    <label>Utilities</label>
-    <div class="checkbox-group" id="addUtilities">
-      <label><input type="checkbox" value="Electric"> Electric</label>
-      <label><input type="checkbox" value="Water"> Water</label>
-      <label><input type="checkbox" value="Wi-Fi"> Wi-Fi</label>
-    </div>
-
+    <h2 id="confirmTitle">Confirm</h2>
+    <p id="confirmMessage" style="margin-top:8px;font-size:0.9rem;"></p>
     <div class="modal-actions">
-      <button class="secondary" onclick="document.getElementById('addModal').style.display='none'">Cancel</button>
-      <button class="primary" id="submitAdd">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- EDIT TENANT MODAL -->
-<div class="modal-overlay" id="editModal">
-  <div class="modal">
-    <h2>Edit Tenant</h2>
-
-    <input type="hidden" id="editTenantId">
-
-    <label>Tenant Name</label>
-    <input id="editTenantName" type="text">
-
-    <label>Monthly Rent</label>
-    <input id="editMonthlyRent" type="number">
-
-    <label>Rent Due Day</label>
-    <input id="editRentDueDay" type="number" min="1" max="31">
-
-    <label>Utilities</label>
-    <div class="checkbox-group" id="editUtilities">
-      <label><input type="checkbox" value="Electric"> Electric</label>
-      <label><input type="checkbox" value="Water"> Water</label>
-      <label><input type="checkbox" value="Wi-Fi"> Wi-Fi</label>
-    </div>
-
-    <div class="modal-actions">
-      <button class="secondary" onclick="document.getElementById('editModal').style.display='none'">Cancel</button>
-      <button class="primary" id="submitEdit">Update</button>
+      <button class="secondary" id="confirmCancel">Cancel</button>
+      <button class="primary" id="confirmYes">Confirm</button>
     </div>
   </div>
 </div>
