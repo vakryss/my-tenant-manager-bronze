@@ -102,7 +102,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (submitAddBtn) {
     submitAddBtn.addEventListener("click", async () => {
-      if (!confirm("Add this tenant?")) return;
+  if (!confirm("Add this tenant?")) return;
+
+  // Disable button
+  submitAddBtn.disabled = true;
+  const originalText = submitAddBtn.textContent;
+  submitAddBtn.textContent = "Saving… Please wait...";
        
 const {
   data: { user }
