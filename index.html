@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>My Tenant Manager – Bronze</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- =================================
        HARD BLOCK RENDER (NO FLASH)
@@ -10,6 +11,79 @@
   <style>
     html {
       visibility: hidden;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 16px;
+      border-radius: 6px;
+    }
+
+    h1, h2, h3, p {
+      margin-top: 0;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .button-row button {
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    hr {
+      margin: 20px 0;
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 24px;
+      }
+
+      input, button {
+        font-size: 15px;
+      }
     }
   </style>
 
@@ -31,6 +105,8 @@
 
 <body>
 
+<div class="container">
+
   <h1>My Tenant Manager</h1>
   <p>Bronze Tier</p>
 
@@ -39,151 +115,125 @@
   <!-- =================================
        LANDLORD PROFILE (READ-ONLY)
   ================================= -->
-  <h2>Landlord Profile</h2>
+  <div class="section">
+    <h2>Landlord Profile</h2>
 
-  <p>
-    <strong>Email:</strong>
-    <span id="profileEmail">N/A</span>
-  </p>
-
-  <p>
-    <strong>Country:</strong>
-    <span id="profileCountry">N/A</span>
-  </p>
-
-  <p>
-    <strong>Currency:</strong>
-    <span id="profileCurrency">N/A</span>
-  </p>
-
-  <p>
-    <strong>Full Name:</strong>
-    <span id="profileFullName">N/A</span>
-  </p>
+    <p><strong>Email:</strong> <span id="profileEmail">N/A</span></p>
+    <p><strong>Country:</strong> <span id="profileCountry">N/A</span></p>
+    <p><strong>Currency:</strong> <span id="profileCurrency">N/A</span></p>
+    <p><strong>Full Name:</strong> <span id="profileFullName">N/A</span></p>
+  </div>
 
   <hr>
 
   <!-- =================================
        LANDLORD PROFILE (EDITABLE)
   ================================= -->
-  <h3>Edit Profile</h3>
+  <div class="section">
+    <h3>Edit Profile</h3>
 
-  <label>Full Name</label><br>
-  <input id="fullNameInput" type="text"><br><br>
+    <label for="fullNameInput">Full Name</label>
+    <input id="fullNameInput" type="text">
 
-  <button id="saveProfileBtn">Save Profile</button>
-  <p id="profileMessage">N/A</p>
+    <button id="saveProfileBtn">Save Profile</button>
+    <p id="profileMessage">N/A</p>
+  </div>
 
   <hr>
 
   <!-- =================================
        SUPABASE TEST
   ================================= -->
-  <button id="testBtn">Test Supabase Connection</button>
-  <p id="result">N/A</p>
+  <div class="section">
+    <button id="testBtn">Test Supabase Connection</button>
+    <p id="result">N/A</p>
+  </div>
 
   <hr>
 
   <!-- =================================
-       LOGOUT
+       NAVIGATION & LOGOUT
   ================================= -->
-  <button id="logoutBtn">Logout</button>
+  <div class="button-row">
+    <button onclick="window.location.href='/tenants.html'">Tenants</button>
+    <button onclick="window.location.href='/utilities.html'">Utilities</button>
+    <button onclick="window.location.href='/payments.html'">Payments</button>
+    <button onclick="window.location.href='/ledger.html'">Ledger</button>
+    <button id="logoutBtn">Logout</button>
+  </div>
 
-  <!-- =================================
-       PAGE LOGIC
-  ================================= -->
-  <script type="module">
-    import { supabase } from "./scripts/supabase.js";
-    import { logout } from "./scripts/session.js";
+</div>
 
-    /* -----------------------------
-       LOAD LANDLORD PROFILE
-    ----------------------------- */
-    async function loadProfile() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+<!-- =================================
+     PAGE LOGIC
+================================= -->
+<script type="module">
+  import { supabase } from "./scripts/supabase.js";
+  import { logout } from "./scripts/session.js";
 
-      const { data, error } = await supabase
-        .from("users_profile")
-        .select("email, country, currency_code, currency_symbol, full_name")
-        .eq("id", user.id)
-        .single();
+  async function loadProfile() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-      if (error) {
-        console.error("Profile load error:", error.message);
-        return;
-      }
+    const { data, error } = await supabase
+      .from("users_profile")
+      .select("email, country, currency_code, currency_symbol, full_name")
+      .eq("id", user.id)
+      .single();
 
-      document.getElementById("profileEmail").textContent =
-        data.email || "N/A";
-
-      document.getElementById("profileCountry").textContent =
-        data.country || "N/A";
-
-      document.getElementById("profileCurrency").textContent =
-        `${data.currency_symbol} (${data.currency_code})`;
-
-      document.getElementById("profileFullName").textContent =
-        data.full_name || "N/A";
-
-      document.getElementById("fullNameInput").value =
-        data.full_name || "";
+    if (error) {
+      console.error("Profile load error:", error.message);
+      return;
     }
 
-    /* -----------------------------
-       UPDATE PROFILE (FULL NAME)
-    ----------------------------- */
-    async function updateProfile() {
-      const message = document.getElementById("profileMessage");
-      const fullName = document.getElementById("fullNameInput").value.trim();
+    document.getElementById("profileEmail").textContent = data.email || "N/A";
+    document.getElementById("profileCountry").textContent = data.country || "N/A";
+    document.getElementById("profileCurrency").textContent =
+      `${data.currency_symbol} (${data.currency_code})`;
+    document.getElementById("profileFullName").textContent =
+      data.full_name || "N/A";
 
-      message.textContent = "Saving...";
+    document.getElementById("fullNameInput").value =
+      data.full_name || "";
+  }
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        message.textContent = "Not authenticated.";
-        return;
-      }
+  async function updateProfile() {
+    const message = document.getElementById("profileMessage");
+    const fullName = document.getElementById("fullNameInput").value.trim();
 
-      const { error } = await supabase
-        .from("users_profile")
-        .update({ full_name: fullName || "N/A" })
-        .eq("id", user.id);
+    message.textContent = "Saving...";
 
-      if (error) {
-        message.textContent = error.message;
-        return;
-      }
-
-      message.textContent = "Profile updated successfully.";
-
-      // 🔑 Refresh displayed data immediately
-      await loadProfile();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      message.textContent = "Not authenticated.";
+      return;
     }
 
-    /* -----------------------------
-       SUPABASE CONNECTION TEST
-    ----------------------------- */
-    document.getElementById("testBtn").addEventListener("click", async () => {
-      const { error } = await supabase.auth.getSession();
-      document.getElementById("result").textContent =
-        error ? "Error: " + error.message : "Supabase connected successfully.";
-    });
+    const { error } = await supabase
+      .from("users_profile")
+      .update({ full_name: fullName || "N/A" })
+      .eq("id", user.id);
 
-    /* -----------------------------
-       LOGOUT
-    ----------------------------- */
-    document.getElementById("logoutBtn").addEventListener("click", logout);
+    if (error) {
+      message.textContent = error.message;
+      return;
+    }
 
-    /* -----------------------------
-       INIT
-    ----------------------------- */
-    document
-      .getElementById("saveProfileBtn")
-      .addEventListener("click", updateProfile);
+    message.textContent = "Profile updated successfully.";
+    await loadProfile();
+  }
 
-    loadProfile();
-  </script>
+  document.getElementById("testBtn").addEventListener("click", async () => {
+    const { error } = await supabase.auth.getSession();
+    document.getElementById("result").textContent =
+      error ? "Error: " + error.message : "Supabase connected successfully.";
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", logout);
+  document.getElementById("saveProfileBtn").addEventListener("click", updateProfile);
+
+  loadProfile();
+</script>
 
 </body>
 </html>
