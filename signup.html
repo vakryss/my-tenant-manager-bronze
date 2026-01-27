@@ -21,7 +21,7 @@
     }
 
     /* =========================
-       SIGNUP CARD
+       CARD
     ========================= */
     .card {
       width: 100%;
@@ -54,14 +54,15 @@
     }
 
     /* =========================
-       FLOATING INPUTS (NO GLOW)
+       FIELDS
     ========================= */
     .field {
       position: relative;
       margin-bottom: 20px;
     }
 
-    .field input {
+    .field input,
+    .field select {
       width: 100%;
       padding: 14px 44px 14px 12px;
       font-size: 0.95rem;
@@ -70,6 +71,10 @@
       background: rgba(255,255,255,0.15);
       color: #000;
       outline: none;
+    }
+
+    .field select {
+      padding-right: 12px;
     }
 
     .field input::placeholder {
@@ -97,7 +102,7 @@
     }
 
     /* =========================
-       PASSWORD EYE ICON
+       PASSWORD EYE
     ========================= */
     .eye {
       position: absolute;
@@ -111,19 +116,26 @@
     }
 
     /* =========================
-       CHECKBOXES
+       CHECKBOX ROWS
     ========================= */
-    .checkbox {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
+    .checkbox-row {
       font-size: 0.85rem;
       margin-bottom: 12px;
+    }
+
+    .checkbox-row input {
+      margin-right: 6px;
+    }
+
+    .checkbox-row a {
       color: #000;
+      text-decoration: underline;
+      font-weight: 600;
+      cursor: pointer;
     }
 
     /* =========================
-       SIGNUP BUTTON
+       BUTTON (OPTION B ANIMATION)
     ========================= */
     button {
       width: 100%;
@@ -136,31 +148,62 @@
       font-weight: 700;
       letter-spacing: 0.5px;
       cursor: pointer;
-      margin-top: 10px;
-    }
-
-    button:hover {
-      background: #f4f4f4;
-    }
-
-    /* =========================
-       MESSAGE (HIDDEN)
-    ========================= */
-    .message {
       margin-top: 14px;
-      font-size: 0.85rem;
-      display: none;
-      color: #000;
+      position: relative;
+    }
+
+    button:disabled {
+      opacity: 0.85;
+      cursor: default;
+    }
+
+    .btn-text {
+      display: inline-flex;
+      gap: 1px;
+    }
+
+    .btn-text span {
+      display: inline-block;
+    }
+
+    .loading .btn-text span {
+      animation: rotateChar 1.4s infinite;
+    }
+
+    .loading .btn-text span:nth-child(1){animation-delay:0s}
+    .loading .btn-text span:nth-child(2){animation-delay:.2s}
+    .loading .btn-text span:nth-child(3){animation-delay:.4s}
+    .loading .btn-text span:nth-child(4){animation-delay:.6s}
+    .loading .btn-text span:nth-child(5){animation-delay:.8s}
+    .loading .btn-text span:nth-child(6){animation-delay:1s}
+
+    @keyframes rotateChar {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(12deg); }
+      50% { transform: rotate(0deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .dots::after { content: ""; }
+
+    .loading .dots::after {
+      animation: dots 1.2s infinite steps(4);
+    }
+
+    @keyframes dots {
+      0% { content:""; }
+      25% { content:"."; }
+      50% { content:".."; }
+      75% { content:"..."; }
     }
 
     /* =========================
-       FOOTER (NO GLOW, ITALIC)
+       FOOTER
     ========================= */
     .footer {
       margin-top: 28px;
       font-size: 0.85rem;
       text-align: center;
-      color: #000;
       font-style: italic;
     }
 
@@ -169,78 +212,211 @@
       text-decoration: underline;
       font-weight: 600;
     }
+
+    /* =========================
+       MODAL
+    ========================= */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: #fff;
+      width: 100%;
+      max-width: 480px;
+      max-height: 80vh;
+      padding: 20px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-body {
+      overflow-y: auto;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+
+    .modal-actions button {
+      margin-top: 8px;
+    }
   </style>
 </head>
 
 <body>
 
-  <div class="card">
-    <h1>Welcome</h1>
-    <div class="subtitle">Create your My Tenant Manager account</div>
+<div class="card">
+  <h1>Welcome</h1>
+  <div class="subtitle">Create your My Tenant Manager account</div>
 
-    <!-- EMAIL -->
-    <div class="field">
-      <input id="email" type="email" placeholder="Email">
-      <label>Email</label>
-    </div>
-
-    <!-- PASSWORD -->
-    <div class="field">
-      <input id="password" type="password" placeholder="Password">
-      <label>Password</label>
-      <span class="eye" id="togglePassword">👁</span>
-    </div>
-
-    <!-- COUNTRY -->
-    <div class="field">
-      <input id="country" type="text" placeholder="Country">
-      <label>Country</label>
-    </div>
-
-    <!-- TERMS -->
-    <div class="checkbox">
-      <input type="checkbox" id="terms">
-      <label for="terms">I accept the Terms and Conditions</label>
-    </div>
-
-    <!-- PRIVACY -->
-    <div class="checkbox">
-      <input type="checkbox" id="privacy">
-      <label for="privacy">I accept the Data Privacy Policy</label>
-    </div>
-
-    <button id="signupBtn">CREATE ACCOUNT</button>
-
-    <div id="message" class="message"></div>
-
-    <div class="footer">
-      Already have an account?
-      <a href="/login.html"><b>Login</b></a>
-      <br><br>
-      My Tenant Manager © 2026<br>
-      Created by Kryss Geo Cantago
-    </div>
+  <!-- EMAIL -->
+  <div class="field">
+    <input id="email" type="email" placeholder="Email">
+    <label>Email</label>
   </div>
 
-  <!-- SIGNUP LOGIC (UNCHANGED) -->
-  <script type="module" src="./scripts/signup.js"></script>
+  <!-- PASSWORD -->
+  <div class="field">
+    <input id="password" type="password" placeholder="Password">
+    <label>Password</label>
+    <span class="eye" id="togglePassword">👁</span>
+  </div>
 
-  <!-- EYE TOGGLE + MESSAGE VISIBILITY -->
-  <script>
-    const toggle = document.getElementById("togglePassword");
-    const password = document.getElementById("password");
+  <!-- COUNTRY -->
+  <div class="field">
+    <select id="country">
+      <option value="">Select country</option>
+      <option>Philippines</option>
+      <option>United States</option>
+      <option>Canada</option>
+      <option>United Kingdom</option>
+      <option>Australia</option>
+      <option>Singapore</option>
+      <option>Japan</option>
+      <option>Germany</option>
+      <option>France</option>
+      <option>India</option>
+    </select>
+  </div>
 
-    toggle.addEventListener("click", () => {
-      password.type =
-        password.type === "password" ? "text" : "password";
-    });
+  <!-- TERMS -->
+  <div class="checkbox-row">
+    <input type="checkbox" id="terms" disabled>
+    I accept the <a id="openTerms">Terms and Conditions</a>
+  </div>
 
-    const msg = document.getElementById("message");
-    const observer = new MutationObserver(() => {
-      msg.style.display = msg.textContent.trim() ? "block" : "none";
-    });
-    observer.observe(msg, { childList: true });
-  </script>
+  <!-- PRIVACY -->
+  <div class="checkbox-row">
+    <input type="checkbox" id="privacy" disabled>
+    I accept the <a id="openPrivacy">Data Privacy Policy</a>
+  </div>
+
+  <!-- CREATE ACCOUNT -->
+  <button id="signupBtn">
+    <span class="btn-text">
+      <span>C</span><span>R</span><span>E</span><span>A</span><span>T</span><span>E</span>
+    </span>
+    <span class="dots"></span>
+  </button>
+
+  <div class="footer">
+    Already have an account?
+    <a href="/login.html"><b>Login</b></a>
+  </div>
+</div>
+
+<!-- TERMS MODAL -->
+<div class="modal" id="termsModal">
+  <div class="modal-content">
+    <div class="modal-body" id="termsBody">
+      <p><b>Terms and Conditions</b></p>
+      <p>(Full terms text here – scroll required)</p>
+      <p>End of Terms.</p>
+    </div>
+    <div class="modal-actions">
+      <button id="agreeTerms" disabled>I Agree</button>
+      <button onclick="closeTerms()">Go Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRIVACY MODAL -->
+<div class="modal" id="privacyModal">
+  <div class="modal-content">
+    <div class="modal-body" id="privacyBody">
+      <p><b>Data Privacy Policy</b></p>
+      <p>(Full privacy policy text here – scroll required)</p>
+      <p>End of Policy.</p>
+    </div>
+    <div class="modal-actions">
+      <button id="agreePrivacy" disabled>I Agree</button>
+      <button onclick="closePrivacy()">Go Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXISTING SIGNUP LOGIC -->
+<script type="module" src="./scripts/signup.js"></script>
+
+<script>
+  /* =========================
+     BUTTON ANIMATION
+     (UI ONLY)
+  ========================= */
+  const signupBtn = document.getElementById("signupBtn");
+  signupBtn.addEventListener("click", () => {
+    signupBtn.classList.add("loading");
+    signupBtn.disabled = true;
+  });
+
+  /* =========================
+     PASSWORD TOGGLE
+  ========================= */
+  const toggle = document.getElementById("togglePassword");
+  const password = document.getElementById("password");
+  toggle.addEventListener("click", () => {
+    password.type = password.type === "password" ? "text" : "password";
+  });
+
+  /* =========================
+     MODAL SETUP (FUTURE-READY)
+  ========================= */
+  function setupModal(openBtn, modal, body, agreeBtn, checkbox) {
+    openBtn.onclick = () => modal.style.display = "flex";
+
+    body.onscroll = () => {
+      if (body.scrollTop + body.clientHeight >= body.scrollHeight - 10) {
+        agreeBtn.disabled = false;
+      }
+    };
+
+    agreeBtn.onclick = () => {
+      checkbox.checked = true;
+      checkbox.disabled = false;
+
+      /* FUTURE BACKEND HOOK
+         recordAcceptance({
+           type: 'terms',
+           version: 'v1.0',
+           acceptedAt: new Date().toISOString(),
+           source: window.location.href
+         });
+      */
+
+      modal.style.display = "none";
+    };
+  }
+
+  setupModal(
+    document.getElementById("openTerms"),
+    document.getElementById("termsModal"),
+    document.getElementById("termsBody"),
+    document.getElementById("agreeTerms"),
+    document.getElementById("terms")
+  );
+
+  setupModal(
+    document.getElementById("openPrivacy"),
+    document.getElementById("privacyModal"),
+    document.getElementById("privacyBody"),
+    document.getElementById("agreePrivacy"),
+    document.getElementById("privacy")
+  );
+
+  function closeTerms() {
+    document.getElementById("termsModal").style.display = "none";
+  }
+
+  function closePrivacy() {
+    document.getElementById("privacyModal").style.display = "none";
+  }
+</script>
 
 </body>
 </html>
