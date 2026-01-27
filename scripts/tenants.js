@@ -100,6 +100,11 @@ document.addEventListener("DOMContentLoaded", () => {
   ========================= */
   if (openAddBtn && addModal) {
     openAddBtn.addEventListener("click", () => {
+
+      // 🔧 RESET SAVE BUTTON STATE (FIX)
+      submitAddBtn.disabled = false;
+      submitAddBtn.textContent = "Save";
+
       openModal(addModal);
     });
   }
@@ -116,6 +121,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         alert("Not authenticated");
+        submitAddBtn.disabled = false;
+        submitAddBtn.textContent = originalText;
         return;
       }
 
@@ -130,7 +137,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const { error } = await supabase
         .from("tenants")
         .insert(payload);
-
+       
+      submitAddBtn.disabled = false;
+      submitAddBtn.textContent = originalText;
+       
       if (error) {
         alert(error.message);
         return;
