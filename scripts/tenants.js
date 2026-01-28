@@ -234,16 +234,19 @@ const confirmAddWarningBtn = document.getElementById("confirmAddWarning");
 
 if (cancelAddWarningBtn && confirmAddWarningBtn) {
   cancelAddWarningBtn.onclick = () => {
-    addTenantWarning.style.display = "none";
-  };
+  addTenantWarning.style.display = "none";
+  addModal.style.pointerEvents = "auto"; // 🔓 re-enable Add Tenant modal
+};
 
-  confirmAddWarningBtn.onclick = () => {
-    sessionStorage.setItem("tenantAddConsent", "true");
-    addTenantWarning.style.display = "none";
+confirmAddWarningBtn.onclick = () => {
+  sessionStorage.setItem("tenantAddConsent", "true");
+  addTenantWarning.style.display = "none";
+  addModal.style.pointerEvents = "auto"; // 🔓 re-enable Add Tenant modal
 
-    // Retry save (now allowed)
-    submitAddBtn.click();
-  };
+  // Retry save (now allowed)
+  submitAddBtn.click();
+};
+
 }
     const payload = {
       tenant_name: $("editTenantName").value.trim(),
@@ -274,9 +277,10 @@ submitAddBtn.onclick = async () => {
   // First-time-per-session consent check
 if (!sessionStorage.getItem("tenantAddConsent")) {
   document.getElementById("addTenantWarning").style.display = "flex";
+  addModal.style.pointerEvents = "none"; // 🔒 disable background modal
   return;
 }
-  
+
   submitAddBtn.disabled = true;
   submitAddBtn.textContent = "Saving… Please wait...";
 
