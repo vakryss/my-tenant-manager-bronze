@@ -503,6 +503,28 @@ button:active {
   <!-- SCRIPT -->
   <script type="module" src="./scripts/tenants.js"></script>
 
+  <!-- MOBILE MENU FIX -->
+<script>
+  const openMenuBtn = document.getElementById("openMenu");
+  const mobileMenu = document.getElementById("mobileMenu");
+
+  if (openMenuBtn && mobileMenu) {
+    // OPEN MENU
+    openMenuBtn.addEventListener("click", () => {
+      mobileMenu.style.display = "block";
+      mobileMenu.style.pointerEvents = "auto";
+    });
+
+    // CLOSE MENU when clicking outside sidebar
+    mobileMenu.addEventListener("click", (e) => {
+      if (e.target === mobileMenu) {
+        mobileMenu.style.display = "none";
+        mobileMenu.style.pointerEvents = "none";
+      }
+    });
+  }
+</script>
+  
   <!-- ADD TENANT MODAL -->
   <div class="modal-overlay" id="addModal">
     <div class="modal">
