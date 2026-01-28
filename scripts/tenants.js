@@ -12,7 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const submitAddBtn = $("submitAdd");
   const submitEditBtn = $("submitEdit");
-  const deleteTenantBtn = $("deleteTenantBtn");
+
+  const movedOutWrap = $("movedOutDateWrap");
+  const lastSeenWrap = $("lastSeenDateWrap");
 
   /* =========================
      OPEN ADD TENANT MODAL
@@ -34,9 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  const movedOutWrap = $("movedOutDateWrap");
-  const lastSeenWrap = $("lastSeenDateWrap");
-
   function openModal(m) { if (m) m.style.display = "flex"; }
   function closeModal(m) { if (m) m.style.display = "none"; }
 
@@ -51,18 +50,12 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     if (!dateValue) {
-      return `
-        <span style="padding:4px 8px;border-radius:6px;font-size:0.75rem;${styles[status]}">
-          ${status}
-        </span>
-      `;
+      return `<span style="padding:4px 8px;border-radius:6px;font-size:0.75rem;${styles[status]}">${status}</span>`;
     }
 
     return `
       <span style="position:relative;display:inline-flex;align-items:center;">
-        <span style="padding:4px 8px;border-radius:6px;font-size:0.75rem;${styles[status]}">
-          ${status}
-        </span>
+        <span style="padding:4px 8px;border-radius:6px;font-size:0.75rem;${styles[status]}">${status}</span>
         <span class="status-info" data-tooltip-id="tooltip-${tenantId}" style="margin-left:6px;cursor:pointer;">ℹ️</span>
         <div id="tooltip-${tenantId}" class="status-tooltip" style="display:none;position:absolute;top:100%;left:0;margin-top:6px;background:#fff;border:1px solid #d1d5db;padding:6px 8px;border-radius:6px;font-size:0.75rem;white-space:nowrap;z-index:100;">
           <strong>${dateLabel}:</strong> ${dateValue}
@@ -76,22 +69,18 @@ document.addEventListener("DOMContentLoaded", () => {
   ========================= */
   async function loadTenants() {
     const filter = statusFilter.value;
-
     let query = supabase.from("tenants").select("*");
     if (filter !== "all") query = query.eq("status", filter);
 
-    const { data, error } = await query;
-    if (error) return;
-
-    const tenants = data.sort((a, b) => a.tenant_name.localeCompare(b.tenant_name));
+    const { data } = await query;
     tenantTableBody.innerHTML = "";
 
-    if (!tenants.length) {
+    if (!data || !data.length) {
       tenantTableBody.innerHTML = `<tr><td colspan="6">No tenants found</td></tr>`;
       return;
     }
 
-    tenants.forEach(t => {
+    data.sort((a, b) => a.tenant_name.localeCompare(b.tenant_name)).forEach(t => {
       const dateLabel =
         t.status === "Moved Out" ? "Moved Out Date" :
         t.status === "Left Without Notice" ? "Last Seen Date" : "";
@@ -112,24 +101,10 @@ document.addEventListener("DOMContentLoaded", () => {
       tr.querySelector("button").onclick = () => openEditModal(t);
       tenantTableBody.appendChild(tr);
     });
-
-    setTimeout(() => {
-      const tooltips = document.querySelectorAll(".status-tooltip");
-      const closeAll = () => tooltips.forEach(t => t.style.display = "none");
-
-      document.querySelectorAll(".status-info").forEach(icon => {
-        const tooltip = document.getElementById(icon.dataset.tooltipId);
-        icon.onmouseenter = () => { closeAll(); tooltip.style.display = "block"; };
-        icon.onmouseleave = () => tooltip.style.display = "none";
-        icon.onclick = e => { e.stopPropagation(); };
-      });
-
-      document.addEventListener("click", closeAll);
-    }, 0);
   }
 
   /* =========================
-     EDIT TENANT
+     EDIT TENANT (FIXED)
   ========================= */
   function openEditModal(t) {
     $("editTenantId").value = t.id;
@@ -139,8 +114,28 @@ document.addEventListener("DOMContentLoaded", () => {
     $("editRentDueDay").value = t.rent_due_day;
     $("editMovedOutDate").value = t.moved_out_date || "";
     $("editLastSeenDate").value = t.last_seen_date || "";
+
     updateStatusFields();
     openModal(editModal);
+
+    // ✅ DELETE HANDLER — CORRECT LOCATION
+    const deleteTenantBtn = $("deleteTenantBtn");
+    if (deleteTenantBtn) {
+      deleteTenantBtn.onclick = async () => {
+        const confirmed = confirm(
+          "This will permanently delete this tenant.\n\nThis action cannot be undone."
+        );
+        if (!confirmed) return;
+
+        await supabase
+          .from("tenants")
+          .delete()
+          .eq("id", t.id);
+
+        closeModal(editModal);
+        loadTenants();
+      };
+    }
   }
 
   function updateStatusFields() {
@@ -169,83 +164,28 @@ document.addEventListener("DOMContentLoaded", () => {
     loadTenants();
   };
 
-// 2️⃣ Delete handler (SEPARATE)
-if (deleteTenantBtn) {
-  deleteTenantBtn.onclick = async () => {
-    const confirmed = confirm(
-      "This will permanently delete this tenant.\n\nThis action cannot be undone."
-    );
-
-    if (!confirmed) return;
-
-    const tenantId = $("editTenantId").value;
-    if (!tenantId) return;
-
-    await supabase
-      .from("tenants")
-      .delete()
-      .eq("id", tenantId);
-
-    closeModal(editModal);
-    loadTenants();
-  };
-}
-
-  /* =========================
-     ADD TENANT WARNING HANDLERS (FIXED)
-  ========================= */
-  const addTenantWarning = $("addTenantWarning");
-  const cancelAddWarningBtn = $("cancelAddWarning");
-  const confirmAddWarningBtn = $("confirmAddWarning");
-
-  cancelAddWarningBtn.onclick = () => {
-    addTenantWarning.style.display = "none";
-    addModal.style.pointerEvents = "auto";
-  };
-
-  confirmAddWarningBtn.onclick = () => {
-    sessionStorage.setItem("tenantAddConsent", "true");
-    addTenantWarning.style.display = "none";
-    addModal.style.pointerEvents = "auto";
-    submitAddBtn.click();
-  };
-
   /* =========================
      ADD TENANT SAVE
   ========================= */
   submitAddBtn.onclick = async () => {
-    if (!sessionStorage.getItem("tenantAddConsent")) {
-      addTenantWarning.style.display = "flex";
-      addModal.style.pointerEvents = "none";
-      return;
-    }
-
     submitAddBtn.disabled = true;
-    submitAddBtn.textContent = "Saving… Please wait...";
+    submitAddBtn.textContent = "Saving…";
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const payload = {
+    await supabase.from("tenants").insert({
       user_id: user.id,
       tenant_name: $("addTenantName").value.trim(),
       status: "Active",
       monthly_rent: Number($("addMonthlyRent").value),
       rent_due_day: Number($("addRentDueDay").value),
       utilities: Array.from(document.querySelectorAll("#addUtilities input:checked")).map(cb => cb.value)
-    };
-
-    await supabase.from("tenants").insert(payload);
+    });
 
     submitAddBtn.disabled = false;
     submitAddBtn.textContent = "Save";
-
-    addModal.classList.add("success-flash");
-    setTimeout(() => {
-      addModal.classList.remove("success-flash");
-      closeModal(addModal);
-    }, 300);
-
+    closeModal(addModal);
     loadTenants();
   };
 
