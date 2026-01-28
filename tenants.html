@@ -25,9 +25,7 @@
 
   <!-- CORE STYLES -->
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -39,7 +37,7 @@
     .app {
       display: flex;
       min-height: 100vh;
-      overflow-x: hidden;
+      overflow-x: hidden; /* PAGE NEVER SCROLLS */
     }
 
     /* SIDEBAR — DO NOT TOUCH */
@@ -131,7 +129,6 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
-      margin-right: 12px;
       margin-right: 25px;
     }
 
@@ -152,21 +149,38 @@
       border-collapse: collapse;
       font-size: 0.85rem;
     }
-/* =========================
-   TABLE OVERFLOW FIX (MOBILE)
-========================= */
-.table-wrap {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
 
-.table-wrap table {
-  min-width: 700px;
-}
-    
-    th,
-    td {
+    /* =========================
+       STRICT TABLE SCROLL ISOLATION
+    ========================= */
+    .table-scroll-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .table-scroll-container::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .table-scroll-container::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.35);
+      border-radius: 4px;
+    }
+
+    /* =========================
+       TABLE OVERFLOW (UNCHANGED)
+    ========================= */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .table-wrap table {
+      min-width: 700px;
+    }
+
+    th, td {
       padding: 8px;
       border-bottom: 1px solid #e5e7eb;
     }
@@ -195,244 +209,23 @@
       cursor: pointer;
     }
 
-/* =========================
-   BUTTON HOVER LIFT
-========================= */
-      button {
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-      button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-}
-
-/* =========================
-   BUTTON PRESS EFFECT
-========================= */
-button:active {
-  transform: translateY(0) scale(0.97);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2) inset;
-}
-
-    /* MODAL */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 20;
-    }
-/* =========================
-   WARNING MODAL LAYER
-========================= */
-.warning-modal {
-  z-index: 30;
-}
-
-    .modal {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      width: 100%;
-      max-width: 420px;
+    button {
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
-    label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-top: 12px;
-      display: block;
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
 
-    input {
-      width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-      font-size: 0.9rem;
+    button:active {
+      transform: translateY(0) scale(0.97);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2) inset;
     }
-
-    .checkbox-group {
-      display: flex;
-      gap: 12px;
-      margin-top: 8px;
-    }
-
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 16px;
-    }
-
-/* =========================
-   MODAL COLOR ENHANCEMENT
-========================= */
-.modal {
-  position: relative;
-}
-
-.modal::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 6px;
-  width: 100%;
-  background: linear-gradient(
-    to right,
-    #AA7E63,
-    #8f6248
-  );
-  border-top-left-radius: 14px;
-  border-top-right-radius: 14px;
-}
-
-.modal h2 {
-  color: #8f6248;
-}
-
-.modal .primary {
-  background: #AA7E63;
-  color: #fff;
-}
-
-.modal .primary:hover {
-  background: #8f6248;
-}
-
-.modal input:focus,
-.modal select:focus {
-  border-color: #AA7E63;
-  box-shadow: 0 0 0 2px rgba(170,126,99,0.25);
-}
-
-/* =========================
-   EDIT STATUS DROPDOWN COLOR
-========================= */
-#editTenantStatus {
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-#editTenantStatus[data-status="Active"] {
-  background-color: #ecfdf5; /* soft green */
-  border-color: #16a34a;
-}
-
-#editTenantStatus[data-status="Moved Out"] {
-  background-color: #f3f4f6; /* soft gray */
-  border-color: #9ca3af;
-}
-
-#editTenantStatus[data-status="Left Without Notice"] {
-  background-color: #f5f5f5;
-  border-color: #111827;
-}
-
-/* =========================
-   MODAL DEPTH / 3D EFFECT
-========================= */
-
-/* Backdrop depth */
-.modal-overlay {
-  backdrop-filter: blur(2px);
-}
-
-/* Modal elevation */
-.modal {
-  transform: translateY(0);
-  box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.18),
-    0 20px 40px rgba(0, 0, 0, 0.12);
-}
-
-/* Entrance animation (depth-aware) */
-@keyframes modalPop {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.modal {
-  animation: modalPop 0.25s ease-out;
-}
-
-/* =========================
-   MODAL OPEN ANIMATION
-========================= */
-.modal {
-  transform: scale(0.96);
-  opacity: 0;
-}
-
-.modal-overlay[style*="flex"] .modal {
-  animation: modalZoomIn 0.25s ease-out forwards;
-}
-
-@keyframes modalZoomIn {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* =========================
-   SOFT SUCCESS FLASH
-========================= */
-.modal-overlay.success-flash .modal {
-  box-shadow:
-  0 0 0 3px rgba(34,197,94,0.45),
-  0 14px 35px rgba(34,197,94,0.35),
-  0 30px 55px rgba(0,0,0,0.15);
-  transition: box-shadow 1.25s ease;
-}
-
-    /* =========================
-   RESPONSIVE MODALS
-========================= */
-.modal {
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-/* Mobile & small tablets */
-@media (max-width: 767px) {
-  .modal {
-    width: calc(100% - 32px);
-    max-width: none;
-    border-radius: 12px;
-    padding: 18px;
-  }
-
-  .modal-actions {
-    flex-direction: column-reverse;
-    gap: 10px;
-  }
-
-  .modal-actions button {
-    width: 100%;
-  }
-}
 
     @media (min-width: 768px) {
-      .mobile-header {
-        display: none;
-      }
-
-      .sidebar {
-        display: flex;
-      }
+      .mobile-header { display: none; }
+      .sidebar { display: flex; }
     }
   </style>
 </head>
@@ -458,7 +251,6 @@ button:active {
         <a class="nav-link" href="/tenant-ledger.html">Tenant Ledger</a>
         <a class="nav-link" href="/profile.html">My Profile</a>
       </div>
-
       <div class="nav-group">
         <a class="nav-link" href="/settings.html">App Settings</a>
         <a class="nav-link" href="#" id="mobileLogout">Logout</a>
@@ -467,8 +259,6 @@ button:active {
   </div>
 
   <div class="app">
-
-    <!-- DESKTOP SIDEBAR -->
     <aside class="sidebar">
       <div class="nav-group">
         <a class="nav-link" href="/index.html">Dashboard</a>
@@ -480,14 +270,12 @@ button:active {
         <a class="nav-link" href="/tenant-ledger.html">Tenant Ledger</a>
         <a class="nav-link" href="/profile.html">My Profile</a>
       </div>
-
       <div class="nav-group">
         <a class="nav-link" href="/settings.html">App Settings</a>
         <a class="nav-link" href="#" id="logoutBtn">Logout</a>
       </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main class="content">
       <div class="container">
         <div class="page-header">
@@ -496,170 +284,38 @@ button:active {
         </div>
 
         <div class="card">
-          <div style="margin-bottom:12px;">
-  <label style="font-size:0.85rem;font-weight:600;">
-    Filter Tenant By Status
-  </label>
-  <select id="statusFilter">
-    <option value="all">Show All</option>
-    <option value="Active">Active</option>
-    <option value="Moved Out">Moved Out</option>
-    <option value="Left Without Notice">Left Without Notice</option>
-  </select>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Tenant Name</th>
-        <th>Status</th>
-        <th>Monthly Rent</th>
-        <th>Due Day</th>
-        <th>Utilities</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="tenantTableBody"></tbody>
-  </table>
-</div>
+          <label style="font-size:0.85rem;font-weight:600;">Filter Tenant By Status</label>
+          <select id="statusFilter">
+            <option value="all">Show All</option>
+            <option value="Active">Active</option>
+            <option value="Moved Out">Moved Out</option>
+            <option value="Left Without Notice">Left Without Notice</option>
+          </select>
+
+          <!-- 🔒 SCROLL ISOLATED HERE -->
+          <div class="table-scroll-container">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tenant Name</th>
+                    <th>Status</th>
+                    <th>Monthly Rent</th>
+                    <th>Due Day</th>
+                    <th>Utilities</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="tenantTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
       </div>
     </main>
-
   </div>
 
-  <!-- SCRIPT -->
   <script type="module" src="./scripts/tenants.js"></script>
-
-  <!-- MOBILE MENU FIX -->
-<script>
-  const openMenuBtn = document.getElementById("openMenu");
-  const mobileMenu = document.getElementById("mobileMenu");
-
-  if (openMenuBtn && mobileMenu) {
-    // OPEN MENU
-    openMenuBtn.addEventListener("click", () => {
-      mobileMenu.style.display = "block";
-      mobileMenu.style.pointerEvents = "auto";
-    });
-
-    // CLOSE MENU when clicking outside sidebar
-    mobileMenu.addEventListener("click", (e) => {
-      if (e.target === mobileMenu) {
-        mobileMenu.style.display = "none";
-        mobileMenu.style.pointerEvents = "none";
-      }
-    });
-  }
-</script>
-
-  <!-- ADD TENANT MODAL -->
-  <div class="modal-overlay" id="addModal">
-    <div class="modal">
-      <h2>Add Tenant</h2>
-
-      <label>Tenant Name</label>
-      <input id="addTenantName" type="text">
-
-      <label>Monthly Rent</label>
-      <input id="addMonthlyRent" type="number">
-
-      <label>Rent Due Day</label>
-      <input id="addRentDueDay" type="number" min="1" max="31">
-
-      <label>Utilities</label>
-      <div class="checkbox-group" id="addUtilities">
-        <label><input type="checkbox" value="Electric"> Electric</label>
-        <label><input type="checkbox" value="Water"> Water</label>
-        <label><input type="checkbox" value="Wi-Fi"> Wi-Fi</label>
-      </div>
-
-      <div class="modal-actions">
-        <button class="secondary" onclick="document.getElementById('addModal').style.display='none'">Cancel</button>
-        <button class="primary" id="submitAdd">Save</button>
-      </div>
-    </div>
-  </div>
-
-<!-- ADD TENANT WARNING MODAL -->
-<div class="modal-overlay warning-modal" id="addTenantWarning">
-  <div class="modal">
-    <h2>Before You Proceed</h2>
-
-    <p style="font-size:0.9rem; line-height:1.5;">
-      You are about to add a tenant’s information.
-      Proceeding means you have already informed the tenant
-      or received permission to record this information.
-      <br><br>
-      If not yet, please consider asking approval first.
-    </p>
-
-    <div class="modal-actions">
-      <button class="secondary" id="cancelAddWarning">Go Back</button>
-      <button class="primary" id="confirmAddWarning">Proceed</button>
-    </div>
-  </div>
-</div>
-
-  <!-- EDIT TENANT MODAL -->
-  <div class="modal-overlay" id="editModal">
-    <div class="modal">
-      <h2>Edit Tenant</h2>
-
-      <input type="hidden" id="editTenantId">
-
-      <label>Tenant Name</label>
-      <input id="editTenantName" type="text">
-
-      <label>Monthly Rent</label>
-      <input id="editMonthlyRent" type="number">
-
-      <label>Rent Due Day</label>
-      <input id="editRentDueDay" type="number" min="1" max="31">
-
-      <label>Utilities</label>
-      <div class="checkbox-group" id="editUtilities">
-        <label><input type="checkbox" value="Electric"> Electric</label>
-        <label><input type="checkbox" value="Water"> Water</label>
-        <label><input type="checkbox" value="Wi-Fi"> Wi-Fi</label>
-      </div>
-
-      <label>Tenant Status</label>
-<select id="editTenantStatus">
-  <option value="Active">Active</option>
-  <option value="Moved Out">Moved Out</option>
-  <option value="Left Without Notice">Left Without Notice</option>
-</select>
-
-<div id="movedOutDateWrap" style="display:none;">
-  <label>Moved Out Date</label>
-  <input type="date" id="editMovedOutDate">
-</div>
-
-<div id="lastSeenDateWrap" style="display:none;">
-  <label>Last Seen Date</label>
-  <input type="date" id="editLastSeenDate">
-</div>
-
-      <div class="modal-actions" style="justify-content: space-between;">
-  <button
-    class="secondary"
-    id="deleteTenantBtn"
-    style="color:#b91c1c;"
-  >
-    Delete Tenant
-  </button>
-
-  <div style="display:flex; gap:8px;">
-    <button class="secondary" onclick="document.getElementById('editModal').style.display='none'">
-      Cancel
-    </button>
-    <button class="primary" id="submitEdit">
-      Update
-    </button>
-  </div>
-</div>
-
-    </div>
-  </div>
-
 </body>
 </html>
