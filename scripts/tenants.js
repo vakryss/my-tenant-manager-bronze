@@ -107,7 +107,46 @@ document.addEventListener("DOMContentLoaded", () => {
       tr.querySelector("button").onclick = () => openEditModal(t);
       tenantTableBody.appendChild(tr);
     });
-  }
+    // =========================
+// STATUS TOOLTIP HANDLERS
+// Supports mouse + touch
+// =========================
+const isTouch =
+  "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+const tooltips = document.querySelectorAll(".status-tooltip");
+const closeAllTooltips = () =>
+  tooltips.forEach(t => (t.style.display = "none"));
+
+document.querySelectorAll(".status-info").forEach(icon => {
+  const tooltip = document.getElementById(icon.dataset.tooltipId);
+
+  if (!tooltip) return;
+
+  // Mouse hover (desktop)
+  icon.addEventListener("mouseenter", () => {
+    if (isTouch) return;
+    closeAllTooltips();
+    tooltip.style.display = "block";
+  });
+
+  icon.addEventListener("mouseleave", () => {
+    if (isTouch) return;
+    tooltip.style.display = "none";
+  });
+
+  // Click / tap (mobile + fallback)
+  icon.addEventListener("click", e => {
+    e.stopPropagation();
+    const isOpen = tooltip.style.display === "block";
+    closeAllTooltips();
+    tooltip.style.display = isOpen ? "none" : "block";
+  });
+});
+
+// Tap / click outside closes all
+document.addEventListener("click", closeAllTooltips);
+}
 
   /* =========================
      EDIT TENANT (FIXED)
