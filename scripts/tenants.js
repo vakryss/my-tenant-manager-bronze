@@ -225,6 +225,26 @@ if (openAddBtn && addModal) {
   $("editTenantStatus").addEventListener("change", updateStatusFields);
 
   submitEditBtn.onclick = async () => {
+    // =========================
+// ADD TENANT WARNING MODAL HANDLERS
+// =========================
+const addTenantWarning = document.getElementById("addTenantWarning");
+const cancelAddWarningBtn = document.getElementById("cancelAddWarning");
+const confirmAddWarningBtn = document.getElementById("confirmAddWarning");
+
+if (cancelAddWarningBtn && confirmAddWarningBtn) {
+  cancelAddWarningBtn.onclick = () => {
+    addTenantWarning.style.display = "none";
+  };
+
+  confirmAddWarningBtn.onclick = () => {
+    sessionStorage.setItem("tenantAddConsent", "true");
+    addTenantWarning.style.display = "none";
+
+    // Retry save (now allowed)
+    submitAddBtn.click();
+  };
+}
     const payload = {
       tenant_name: $("editTenantName").value.trim(),
       status: $("editTenantStatus").value,
@@ -251,8 +271,12 @@ if (openAddBtn && addModal) {
 // ADD TENANT - SAVE HANDLER
 // =========================
 submitAddBtn.onclick = async () => {
-  if (!confirm("Add this tenant?")) return;
-
+  // First-time-per-session consent check
+if (!sessionStorage.getItem("tenantAddConsent")) {
+  document.getElementById("addTenantWarning").style.display = "flex";
+  return;
+}
+  
   submitAddBtn.disabled = true;
   submitAddBtn.textContent = "Saving… Please wait...";
 
@@ -287,8 +311,15 @@ submitAddBtn.onclick = async () => {
     return;
   }
 
+  addModal.classList.add("success-flash");
+
+setTimeout(() => {
+  addModal.classList.remove("success-flash");
   closeModal(addModal);
-  loadTenants();
+}, 300);
+
+loadTenants();
+
 };
 
   statusFilter.onchange = loadTenants;
