@@ -553,6 +553,26 @@ button:active {
     </div>
   </div>
 
+<!-- ADD TENANT WARNING MODAL -->
+<div class="modal-overlay" id="addTenantWarning">
+  <div class="modal">
+    <h2>Before You Proceed</h2>
+
+    <p style="font-size:0.9rem; line-height:1.5;">
+      You are about to add a tenant’s information.
+      Proceeding means you have already informed the tenant
+      or received permission to record this information.
+      <br><br>
+      If not yet, please consider asking approval first.
+    </p>
+
+    <div class="modal-actions">
+      <button class="secondary" id="cancelAddWarning">Go Back</button>
+      <button class="primary" id="confirmAddWarning">Proceed</button>
+    </div>
+  </div>
+</div>
+
   <!-- EDIT TENANT MODAL -->
   <div class="modal-overlay" id="editModal">
     <div class="modal">
