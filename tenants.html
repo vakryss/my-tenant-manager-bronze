@@ -152,6 +152,19 @@
       border-collapse: collapse;
       font-size: 0.85rem;
     }
+    
+/* =========================
+   TABLE OVERFLOW FIX (MOBILE)
+========================= */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-wrap table {
+  min-width: 700px;
+}
 
     th,
     td {
@@ -494,21 +507,21 @@ button:active {
     <option value="Moved Out">Moved Out</option>
     <option value="Left Without Notice">Left Without Notice</option>
   </select>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Tenant Name</th>
+        <th>Status</th>
+        <th>Monthly Rent</th>
+        <th>Due Day</th>
+        <th>Utilities</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tenantTableBody"></tbody>
+  </table>
 </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Tenant Name</th>
-                <th>Status</th>
-                <th>Monthly Rent</th>
-                <th>Due Day</th>
-                <th>Utilities</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="tenantTableBody"></tbody>
-          </table>
-        </div>
       </div>
     </main>
 
